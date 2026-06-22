@@ -14,12 +14,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="ASTRALITH_", env_file=".env", extra="ignore")
 
     project_name: str = "Astralith"
-    version: str = "0.1.0"
+    version: str = "0.1.1"
     api_v1_prefix: str = "/api/v1"
     database_url: str = "sqlite:///./backend/data/astralith.db"
     redis_url: str = "redis://" + "127.0.0.1" + ":6379/0"
     # 开发环境默认值只用于本地启动；真实部署必须通过环境变量替换。
-    secret_key: str = Field(default="change-me-in-development", min_length=16)
+    secret_key: str = Field(default="change-me-in-development-secret-key", min_length=32)
     access_token_expire_minutes: int = 60 * 24
 
 

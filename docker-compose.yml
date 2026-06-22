@@ -11,7 +11,7 @@ services:
     environment:
       ASTRALITH_DATABASE_URL: sqlite:///./backend/data/astralith.db
       ASTRALITH_REDIS_URL: redis://redis:6379/0
-      ASTRALITH_SECRET_KEY: change-me-in-production
+      ASTRALITH_SECRET_KEY: change-me-in-production-secret-key
     ports:
       - "8000:8000"
     volumes:

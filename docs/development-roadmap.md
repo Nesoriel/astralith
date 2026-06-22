@@ -53,6 +53,12 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 - No Kubernetes or CI/CD management.
 - No real remote execution requirement in automated tests.
 
+## v0.1.1 — Security Maintenance
+
+- Replace `python-jose` with `PyJWT[crypto]` to remove the vulnerable `ecdsa` dependency chain.
+- Add JWT encode/decode regression coverage.
+- Keep the release small: no feature scope expansion beyond dependency security and documentation.
+
 ## v0.2.0 — Real Execution Loop
 
 - Generate Ansible inventory from selected hosts/groups.

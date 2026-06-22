@@ -163,25 +163,24 @@ pnpm install
 pnpm dev
 ```
 
+## v0.1.0 Scope
+
+The current v0.1.0 target is a minimal local demonstration loop:
+
+- Backend health checks.
+- Host CRUD and host connection-test entry.
+- Host group CRUD and membership management.
+- Built-in operation module listing for `system_inspection` and `service_manage`.
+- SQLite-backed task creation, task list, and task logs entry.
+- SQLite-backed scheduled job creation, enable/disable, and manual trigger.
+- Vue dashboard and demonstration pages for hosts, host groups, modules, tasks, and scheduled jobs.
+- Simplified Chinese and English frontend i18n.
+
+Real Celery + Ansible Runner remote execution is intentionally planned for v0.2.0 so v0.1.0 remains stable and easy to demonstrate.
+
 ## Development Roadmap
 
-1. Initialize backend project
-2. Initialize frontend project
-3. Implement database connection
-4. Implement user login
-5. Implement host management
-6. Implement host grouping
-7. Implement Ansible connectivity tests
-8. Implement task model and task status management
-9. Implement Celery worker
-10. Implement Ansible execution service
-11. Store and display execution logs
-12. Implement system inspection module
-13. Implement service management module
-14. Implement scheduled jobs
-15. Implement basic dashboard
-16. Add Docker Compose deployment
-17. Improve documentation
+See [docs/development-roadmap.md](./docs/development-roadmap.md) for the version plan.
 
 ## Security Principles
 
@@ -200,6 +199,7 @@ Important design and development rules are recorded in [AGENTS.md](./AGENTS.md).
 - `docs/architecture.md`
 - `docs/database-design.md`
 - `docs/api-design.md`
+- `docs/development-roadmap.md`
 - `docs/deployment.md`
 - `docs/frontend-i18n.md`
 - `docs/graduation-design-notes.md`

@@ -157,25 +157,24 @@ pnpm install
 pnpm dev
 ```
 
+## v0.1.0 范围
+
+当前 v0.1.0 的目标是提供一个可本地运行、可毕业答辩演示的最小闭环：
+
+- 后端健康检查接口。
+- 主机 CRUD 与连接测试入口。
+- 主机组 CRUD 与成员关系管理。
+- `system_inspection` 与 `service_manage` 内置运维模块列表。
+- 基于 SQLite 的任务创建、任务列表与任务日志入口。
+- 基于 SQLite 的定时任务创建、启用、禁用与手动触发。
+- Vue 仪表盘，以及主机、主机组、模块、任务、定时任务演示页面。
+- 前端简体中文与英文双语 i18n。
+
+真实 Celery + Ansible Runner 远程执行规划到 v0.2.0，确保 v0.1.0 足够稳定、轻量、易演示。
+
 ## 开发路线
 
-1. 初始化后端项目
-2. 初始化前端项目
-3. 实现数据库连接
-4. 实现用户登录
-5. 实现主机管理
-6. 实现主机分组
-7. 实现 Ansible 连通性测试
-8. 实现任务模型与任务状态管理
-9. 实现 Celery worker
-10. 实现 Ansible 执行服务
-11. 存储并展示执行日志
-12. 实现系统巡检模块
-13. 实现服务管理模块
-14. 实现定时任务模块
-15. 实现基础仪表盘
-16. 添加 Docker Compose 部署
-17. 完善项目文档
+版本路线见 [docs/development-roadmap.md](./docs/development-roadmap.md)。
 
 ## 安全原则
 
@@ -194,6 +193,7 @@ pnpm dev
 - `docs/architecture.md`
 - `docs/database-design.md`
 - `docs/api-design.md`
+- `docs/development-roadmap.md`
 - `docs/deployment.md`
 - `docs/frontend-i18n.md`
 - `docs/graduation-design-notes.md`

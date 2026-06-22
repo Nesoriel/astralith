@@ -1,0 +1,84 @@
+# Development Roadmap
+
+## Version Strategy
+
+Astralith uses small, demonstrable releases. Each version should be easy to explain in the graduation thesis and defense.
+
+## v0.1.0 — Minimal Demonstration Loop
+
+Goal: provide a runnable local prototype that demonstrates the core automated-operations workflow without pretending to be a full enterprise platform.
+
+### Backend Scope
+
+- Health checks under `/health` and `/api/v1/status`.
+- Host CRUD API:
+  - `GET /api/v1/hosts`
+  - `POST /api/v1/hosts`
+  - `GET /api/v1/hosts/{host_id}`
+  - `PUT /api/v1/hosts/{host_id}`
+  - `DELETE /api/v1/hosts/{host_id}`
+  - `POST /api/v1/hosts/{host_id}/test-connection`
+- Host group CRUD and membership API:
+  - `GET /api/v1/host-groups`
+  - `POST /api/v1/host-groups`
+  - `GET /api/v1/host-groups/{group_id}`
+  - `PUT /api/v1/host-groups/{group_id}`
+  - `DELETE /api/v1/host-groups/{group_id}`
+  - `POST /api/v1/host-groups/{group_id}/hosts`
+  - `DELETE /api/v1/host-groups/{group_id}/hosts/{host_id}`
+- Built-in operation module listing for `system_inspection` and `service_manage`.
+- Task creation and logs API backed by SQLite records:
+  - task creation validates module/task keys and target selection;
+  - v0.1.0 records tasks and returns `pending` status;
+  - actual long-running execution remains behind the Celery/Ansible service boundary for later versions.
+- Scheduled job CRUD and manual trigger API backed by SQLite records.
+- Pytest coverage for core API paths.
+
+### Frontend Scope
+
+- Vue 3 + Element Plus shell with Simplified Chinese / English i18n.
+- Dashboard summary cards loaded from backend data where practical.
+- Hosts page with list, create, delete, and connection-test actions.
+- Host groups page with list and create/delete basics.
+- Operation modules page with localized module/task metadata.
+- Tasks page with module/task selection, target selection, task creation, and task list.
+- Scheduled jobs page with create/list/enable/disable/manual trigger basics.
+
+### Explicit Non-goals
+
+- No web terminal.
+- No SSH password storage.
+- No user-uploaded plugins or dynamic Python execution.
+- No complex RBAC.
+- No Kubernetes or CI/CD management.
+- No real remote execution requirement in automated tests.
+
+## v0.2.0 — Real Execution Loop
+
+- Generate Ansible inventory from selected hosts/groups.
+- Generate playbooks from built-in operation modules.
+- Dispatch Celery worker tasks and persist per-host `TaskResult` rows.
+- Parse Ansible Runner status, stdout, stderr, and event data.
+- Improve task status transitions: `pending -> running -> success|partial_success|failed|cancelled`.
+
+## v0.3.0 — Authentication and Defense Polish
+
+- Add login and JWT-protected API routes.
+- Seed an initial admin user for local deployment.
+- Improve dashboard charts and task log presentation.
+- Add Docker Compose quick-start verification notes.
+
+## v0.4.0 — Scheduled Execution and Operational Hardening
+
+- Wire APScheduler persistence to scheduled jobs.
+- Trigger Celery execution from scheduler events.
+- Add better validation and error messages.
+- Add deployment hardening notes.
+
+## Quality Rules
+
+- Code comments and docstrings are Chinese.
+- User-facing frontend text goes through locale files.
+- Backend tests run with `uv run pytest`.
+- Frontend build runs with `pnpm --dir frontend build`.
+- Each release should keep the project lightweight and thesis-friendly.

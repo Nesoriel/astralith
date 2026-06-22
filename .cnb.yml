@@ -1,0 +1,62 @@
+$:
+  tag_push:
+    - name: release
+      runner:
+        cpus: 16
+      docker:
+        image: cnbcool/default-build-env:latest
+      stages:
+        - name: verify release tag
+          script: |
+            set -euo pipefail
+            case "$CNB_BRANCH" in
+              v[0-9]*.[0-9]*.[0-9]*) ;;
+              *)
+                echo "Skip non-semver tag: $CNB_BRANCH"
+                exit 0
+                ;;
+            esac
+
+            tag_version="${CNB_BRANCH#v}"
+            pyproject_version="$(sed -n 's/^version = "\([^"]\+\)"$/\1/p' pyproject.toml | head -n 1)"
+            if [ "$tag_version" != "$pyproject_version" ]; then
+              echo "Tag version (${tag_version}) does not match pyproject.toml version (${pyproject_version})" >&2
+              exit 1
+            fi
+
+        - name: generate release notes
+          if: 'case "$CNB_BRANCH" in v[0-9]*.[0-9]*.[0-9]*) exit 0 ;; *) exit 1 ;; esac'
+          script: |
+            set -euo pipefail
+            export TAG_NAME="$CNB_BRANCH"
+            previous_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -v "^${TAG_NAME}$" | head -n 1 || true)"
+            if [ -n "$previous_tag" ]; then
+              range="${previous_tag}..${TAG_NAME}"
+              intro="Automated release notes generated from commits since \`${previous_tag}\`."
+              compare_url="https://cnb.cool/${CNB_REPO_SLUG}/-/compare/${previous_tag}...${TAG_NAME}"
+            else
+              range="${TAG_NAME}"
+              intro="Automated release notes generated from commits included in \`${TAG_NAME}\`."
+              compare_url=""
+            fi
+
+            {
+              printf '## Astralith %s\n\n' "$TAG_NAME"
+              printf '%s\n' "$intro"
+              printf '\n## Changes\n\n'
+              git log "$range" --reverse --pretty=format:'- %s (`%h`, %an)'
+              printf '\n\n## Validation\n\n'
+              printf '%s\n' '- GitHub release workflow runs `uv run pytest` and `pnpm --dir frontend build`.'
+              printf '%s\n' '- CNB release is created from the mirrored Git tag.'
+              if [ -n "$compare_url" ]; then
+                printf '\n**Full Changelog**: %s\n' "$compare_url"
+              fi
+            } > release-notes.md
+
+        - name: publish CNB release
+          if: 'case "$CNB_BRANCH" in v[0-9]*.[0-9]*.[0-9]*) exit 0 ;; *) exit 1 ;; esac'
+          type: git:release
+          options:
+            tag: $CNB_BRANCH
+            title: Astralith $CNB_BRANCH
+            descriptionFromFile: release-notes.md

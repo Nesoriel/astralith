@@ -10,7 +10,7 @@ Graduation project title:
 
 ## Current Status
 
-v0.2.0 provides a lightweight real execution loop:
+v0.2.1 provides a polished lightweight real execution loop:
 
 - Host CRUD and host group management.
 - Built-in operation module metadata for `system_inspection` and `service_manage`.
@@ -19,6 +19,7 @@ v0.2.0 provides a lightweight real execution loop:
 - SQLite-backed per-host task results with stdout, stderr, and raw event data.
 - Scheduled job records with enable, disable, and manual trigger actions.
 - Vue 3 task log display with Simplified Chinese and English i18n.
+- Clean test/build output for the current v0.2.x toolchain.
 
 The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 

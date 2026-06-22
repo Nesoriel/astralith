@@ -46,8 +46,11 @@ export default {
     cronExpression: 'Cron 表达式',
     enabled: '启用状态',
     createdAt: '创建时间',
+    startedAt: '开始时间',
+    finishedAt: '结束时间',
     stdout: '标准输出',
     stderr: '错误输出',
+    rawEventData: '原始事件数据',
   },
   targetTypes: {
     hosts: '主机',

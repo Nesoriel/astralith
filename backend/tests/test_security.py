@@ -7,7 +7,7 @@ from backend.app.core.security import ALGORITHM, create_access_token, hash_passw
 
 
 def test_password_hash_roundtrip() -> None:
-    """密码哈希应能通过 passlib 正确校验。"""
+    """密码哈希应能通过 bcrypt 正确校验。"""
     hashed_password = hash_password("secret-password")
 
     assert hashed_password != "secret-password"

@@ -2,7 +2,7 @@ import json
 from types import SimpleNamespace
 from typing import Any
 
-from fastapi.testclient import TestClient
+from starlette.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -13,7 +13,7 @@ from backend.app.schemas.scheduled_job import ScheduledJobCreate
 from backend.app.schemas.task import TaskCreate
 from backend.app.services.ansible_service import AnsibleExecutionResult, AnsibleService
 from backend.app.services.schedule_service import ScheduleService
-from backend.app.services.task_service import TaskService
+from backend.app.services.task_service import TaskService, validate_task_status_transition
 from backend.app.workers import tasks as worker_tasks
 
 
@@ -183,6 +183,62 @@ def test_task_service_marks_partial_success_from_events(db_session: Session, mon
     result_statuses = {result.status for result in db_session.scalars(select(TaskResult))}
     assert executed.status == "partial_success"
     assert result_statuses == {"success", "failed"}
+
+
+def test_task_status_machine_rejects_terminal_state_regression() -> None:
+    """任务状态机必须拒绝终态回退到 running。"""
+    try:
+        validate_task_status_transition("success", "running")
+    except ValueError as exc:
+        assert "success -> running" in str(exc)
+    else:
+        raise AssertionError("terminal task status should not regress")
+
+
+def test_task_service_uses_task_scoped_runner_directory(
+    db_session: Session,
+    monkeypatch: Any,
+    tmp_path: Any,
+) -> None:
+    """任务执行应使用 task-{id} Runner 目录隔离运行数据。"""
+    host = Host(
+        name="runner-demo",
+        ip_address="127.0.0.1",
+        ssh_port=22,
+        ssh_user="root",
+        private_key_path="/tmp/key",
+    )
+    db_session.add(host)
+    db_session.commit()
+    db_session.refresh(host)
+    task = TaskService(db_session).create_task(
+        TaskCreate(
+            name="Scoped runner",
+            module_key="system_inspection",
+            module_task_key="check_uptime",
+            target_type="hosts",
+            target_ids=[host.id],
+            parameters={},
+        )
+    )
+    runner_dirs: list[str] = []
+
+    def fake_run(self: AnsibleService, inventory: dict[str, Any], playbook: list[dict[str, Any]]) -> AnsibleExecutionResult:
+        _ = inventory, playbook
+        runner_dirs.append(str(self.private_data_dir))
+        return AnsibleExecutionResult(
+            status="successful",
+            stdout="ok",
+            stderr="",
+            raw_events=[{"event": "runner_on_ok", "event_data": {"host": "runner-demo"}}],
+        )
+
+    monkeypatch.setattr(AnsibleService, "run_module_task", fake_run)
+    monkeypatch.setattr("backend.app.services.task_service.RUNNER_BASE_DIR", tmp_path)
+
+    TaskService(db_session).execute_task(task.id)
+
+    assert runner_dirs == [str(tmp_path / f"task-{task.id}")]
 
 
 def test_worker_executes_task_with_database_session(client: TestClient, monkeypatch: Any) -> None:

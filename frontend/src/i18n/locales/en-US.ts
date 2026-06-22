@@ -46,8 +46,11 @@ export default {
     cronExpression: 'Cron Expression',
     enabled: 'Enabled',
     createdAt: 'Created At',
+    startedAt: 'Started At',
+    finishedAt: 'Finished At',
     stdout: 'Stdout',
     stderr: 'Stderr',
+    rawEventData: 'Raw Event Data',
   },
   targetTypes: {
     hosts: 'Hosts',

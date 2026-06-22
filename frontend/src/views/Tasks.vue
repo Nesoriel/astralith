@@ -14,6 +14,8 @@ const modules = ref<OperationModule[]>([])
 const tasks = ref<Task[]>([])
 const logs = ref<TaskLogs | null>(null)
 const logsVisible = ref(false)
+const loading = ref(false)
+const logsLoading = ref(false)
 const form = ref<TaskPayload>({
   name: t('defaults.taskName'),
   module_key: 'system_inspection',
@@ -31,13 +33,25 @@ function localize(text: LocalizedText): string {
   return text[activeLocale.value] ?? text['zh-CN']
 }
 
+function statusTagType(status: string): 'success' | 'warning' | 'danger' | 'info' {
+  if (status === 'success') return 'success'
+  if (status === 'partial_success' || status === 'running') return 'warning'
+  if (status === 'failed' || status === 'cancelled') return 'danger'
+  return 'info'
+}
+
 async function loadData(): Promise<void> {
-  const [hostList, moduleList, taskList] = await Promise.all([listHosts(), listOperationModules(), listTasks()])
-  hosts.value = hostList
-  modules.value = moduleList
-  tasks.value = taskList
-  if (form.value.target_ids.length === 0 && hostList[0]) {
-    form.value.target_ids = [hostList[0].id]
+  loading.value = true
+  try {
+    const [hostList, moduleList, taskList] = await Promise.all([listHosts(), listOperationModules(), listTasks()])
+    hosts.value = hostList
+    modules.value = moduleList
+    tasks.value = taskList
+    if (form.value.target_ids.length === 0 && hostList[0]) {
+      form.value.target_ids = [hostList[0].id]
+    }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -48,8 +62,13 @@ async function submitTask(): Promise<void> {
 }
 
 async function openLogs(task: Task): Promise<void> {
-  logs.value = await getTaskLogs(task.id)
   logsVisible.value = true
+  logsLoading.value = true
+  try {
+    logs.value = await getTaskLogs(task.id)
+  } finally {
+    logsLoading.value = false
+  }
 }
 
 onMounted(loadData)
@@ -89,15 +108,19 @@ onMounted(loadData)
       <template #header>
         <div class="flex items-center justify-between">
           <span>{{ t('nav.tasks') }}</span>
-          <el-button size="small" @click="loadData">{{ t('common.refresh') }}</el-button>
+          <el-button size="small" :loading="loading" @click="loadData">{{ t('common.refresh') }}</el-button>
         </div>
       </template>
-      <el-table :data="tasks" empty-text="-">
+      <el-table v-loading="loading" :data="tasks" empty-text="-">
         <el-table-column prop="id" :label="t('fields.id')" width="80" />
         <el-table-column prop="name" :label="t('fields.name')" />
         <el-table-column prop="module_key" :label="t('fields.module')" />
         <el-table-column prop="module_task_key" :label="t('fields.moduleTask')" />
-        <el-table-column prop="status" :label="t('fields.status')" />
+        <el-table-column prop="status" :label="t('fields.status')">
+          <template #default="scope">
+            <el-tag :type="statusTagType(scope.row.status)">{{ scope.row.status }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column :label="t('fields.targets')">
           <template #default="scope">{{ scope.row.target_ids.join(', ') }}</template>
         </el-table-column>
@@ -110,24 +133,38 @@ onMounted(loadData)
     </el-card>
 
     <el-drawer v-model="logsVisible" :title="t('pages.tasks.logs')" size="60%">
-      <div v-if="logs" class="space-y-4">
-        <el-descriptions border :column="2">
-          <el-descriptions-item :label="t('fields.id')">{{ logs.task.id }}</el-descriptions-item>
-          <el-descriptions-item :label="t('fields.status')">{{ logs.task.status }}</el-descriptions-item>
-          <el-descriptions-item :label="t('fields.module')">{{ logs.task.module_key }}</el-descriptions-item>
-          <el-descriptions-item :label="t('fields.moduleTask')">{{ logs.task.module_task_key }}</el-descriptions-item>
-        </el-descriptions>
+      <div v-loading="logsLoading" class="min-h-40">
+        <div v-if="logs" class="space-y-4">
+          <el-descriptions border :column="2">
+            <el-descriptions-item :label="t('fields.id')">{{ logs.task.id }}</el-descriptions-item>
+            <el-descriptions-item :label="t('fields.status')">
+              <el-tag :type="statusTagType(logs.task.status)">{{ logs.task.status }}</el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item :label="t('fields.module')">{{ logs.task.module_key }}</el-descriptions-item>
+            <el-descriptions-item :label="t('fields.moduleTask')">{{ logs.task.module_task_key }}</el-descriptions-item>
+            <el-descriptions-item :label="t('fields.startedAt')">{{ logs.task.started_at ?? '-' }}</el-descriptions-item>
+            <el-descriptions-item :label="t('fields.finishedAt')">{{ logs.task.finished_at ?? '-' }}</el-descriptions-item>
+          </el-descriptions>
 
-        <el-empty v-if="logs.results.length === 0" :description="t('common.empty')" />
-        <el-card v-for="result in logs.results" :key="result.id" shadow="never">
-          <template #header>
-            {{ t('fields.host') }} #{{ result.host_id ?? '-' }} · {{ result.status }}
-          </template>
-          <p class="font-medium">{{ t('fields.stdout') }}</p>
-          <pre class="overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">{{ result.stdout || '-' }}</pre>
-          <p class="mt-3 font-medium">{{ t('fields.stderr') }}</p>
-          <pre class="overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">{{ result.stderr || '-' }}</pre>
-        </el-card>
+          <el-empty v-if="logs.results.length === 0" :description="t('common.empty')" />
+          <el-card v-for="result in logs.results" :key="result.id" shadow="never">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <span>{{ t('fields.host') }} #{{ result.host_id ?? '-' }}</span>
+                <el-tag :type="statusTagType(result.status)">{{ result.status }}</el-tag>
+              </div>
+            </template>
+            <div class="mb-3 text-sm text-slate-500">
+              {{ t('fields.startedAt') }}: {{ result.started_at ?? '-' }} / {{ t('fields.finishedAt') }}: {{ result.finished_at ?? '-' }}
+            </div>
+            <p class="font-medium">{{ t('fields.stdout') }}</p>
+            <pre class="overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">{{ result.stdout || '-' }}</pre>
+            <p class="mt-3 font-medium">{{ t('fields.stderr') }}</p>
+            <pre class="overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">{{ result.stderr || '-' }}</pre>
+            <p class="mt-3 font-medium">{{ t('fields.rawEventData') }}</p>
+            <pre class="overflow-auto rounded bg-slate-100 p-3 text-xs text-slate-800">{{ result.raw_event_data || '-' }}</pre>
+          </el-card>
+        </div>
       </div>
     </el-drawer>
   </main>

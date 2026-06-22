@@ -68,6 +68,15 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 - Parse Ansible Runner status and host events into task states: `running`, `success`, `partial_success`, and `failed`.
 - Display task logs and per-host output in the Vue task page.
 
+## v0.2.1 — Execution Loop Polish
+
+- Add an explicit task status transition guard to prevent terminal-state regression.
+- Isolate Ansible Runner working directories as `backend/.runner/task-{id}`.
+- Replace Passlib with direct bcrypt hashing to avoid Python 3.13 `crypt` deprecation noise.
+- Install `httpx2` for clean Starlette TestClient runs.
+- Improve task log UI with loading states, status tags, timestamps, and raw event data.
+- Configure Vite/Rolldown chunking and dependency warning handling for clean frontend builds.
+
 ## v0.3.0 — Authentication and Defense Polish
 
 - Add login and JWT-protected API routes.

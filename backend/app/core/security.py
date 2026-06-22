@@ -1,24 +1,22 @@
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 import jwt
-from passlib.context import CryptContext
 
 from backend.app.core.config import settings
 
 ALGORITHM = "HS256"
 
-# passlib 统一封装密码哈希算法，后续更换算法时不影响业务代码。
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def hash_password(password: str) -> str:
     """生成密码哈希。数据库中只保存哈希，不保存明文密码。"""
-    return pwd_context.hash(password)
+    password_bytes = password.encode("utf-8")
+    return bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """校验用户输入密码与数据库中的哈希是否匹配。"""
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:

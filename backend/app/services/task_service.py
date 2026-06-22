@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, cast
 
 from sqlalchemy import delete, select
@@ -10,6 +11,22 @@ from backend.app.models.task import Task, TaskResult
 from backend.app.operation_modules.registry import registry
 from backend.app.schemas.task import TargetType, TaskCreate, TaskRead, TaskResultRead, TaskStatus
 from backend.app.services.ansible_service import AnsibleExecutionResult, AnsibleService
+
+
+RUNNER_BASE_DIR = Path("backend/.runner")
+ALLOWED_TASK_STATUS_TRANSITIONS = {
+    "pending": {"running", "cancelled"},
+    "running": {"success", "partial_success", "failed", "cancelled"},
+}
+
+
+def validate_task_status_transition(current_status: str, next_status: str) -> None:
+    """校验任务状态转换是否符合既定状态机。"""
+    if current_status == next_status:
+        return
+    allowed_next_statuses = ALLOWED_TASK_STATUS_TRANSITIONS.get(current_status, set())
+    if next_status not in allowed_next_statuses:
+        raise ValueError(f"Invalid task status transition: {current_status} -> {next_status}")
 
 
 class TaskService:
@@ -61,6 +78,7 @@ class TaskService:
             return task
 
         started_at = datetime.now(timezone.utc)
+        validate_task_status_transition(task.status, "running")
         task.status = "running"
         task.started_at = started_at
         task.finished_at = None
@@ -73,10 +91,12 @@ class TaskService:
             parameters = json.loads(task.parameters_json or "{}")
             playbook = module_task.build_playbook(parameters)
             inventory = AnsibleService.build_inventory(hosts)
-            result = AnsibleService().run_module_task(inventory, playbook)
+            result = AnsibleService(RUNNER_BASE_DIR / f"task-{task.id}").run_module_task(inventory, playbook)
             final_status = self._persist_host_results(task, hosts, result, started_at)
+            validate_task_status_transition(task.status, final_status)
             task.status = final_status
         except Exception as exc:
+            validate_task_status_transition(task.status, "failed")
             task.status = "failed"
             self.db.add(
                 TaskResult(

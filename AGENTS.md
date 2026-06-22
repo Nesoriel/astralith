@@ -45,7 +45,8 @@ Frontend displays logs and task status
 
 ### Backend
 
-* Python
+* Python 3.12+
+* uv for Python dependency and virtual environment management
 * FastAPI
 * SQLAlchemy
 * SQLite
@@ -54,12 +55,17 @@ Frontend displays logs and task status
 * Redis
 * APScheduler
 * JWT authentication
+* pytest for automated backend tests
 
 ### Frontend
 
 * Vue 3
+* Vite
+* pnpm
 * Element Plus
-* TypeScript is preferred if the project setup supports it
+* Tailwind CSS
+* TypeScript
+* vue-i18n for Simplified Chinese and English UI text
 
 ### Deployment
 
@@ -142,7 +148,8 @@ The following decisions are already confirmed and should not be changed without 
 8. Celery executes background tasks.
 9. Redis is used as the Celery broker.
 10. Vue 3 + Element Plus is used for the frontend.
-11. Built-in operation module extensibility should be reserved for future Docker, log, database, or Kubernetes-related features.
+11. Frontend UI text should support Simplified Chinese and English.
+12. Built-in operation module extensibility should be reserved for future Docker, log, database, or Kubernetes-related features.
 
 ## Out of Scope for the First Version
 
@@ -450,11 +457,13 @@ backend/
 │       ├── base.py
 │       ├── registry.py
 │       ├── system_inspection/
-│       ├── service_manage/
-│       └── docker_manage/
+│       └── service_manage/
 ├── tests/
-├── requirements.txt
 └── Dockerfile
+
+pyproject.toml
+uv.lock
+docker-compose.yml
 ```
 
 ## Suggested Frontend Directory Structure
@@ -463,6 +472,7 @@ backend/
 frontend/
 ├── src/
 │   ├── api/
+│   ├── i18n/
 │   ├── router/
 │   ├── stores/
 │   ├── views/
@@ -477,6 +487,11 @@ frontend/
 │   ├── components/
 │   └── main.ts
 ├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── postcss.config.js
+├── tailwind.config.ts
+├── tsconfig.json
 └── vite.config.ts
 ```
 
@@ -620,6 +635,10 @@ Keep FastAPI route functions thin. Validate input with Pydantic schemas, call se
 
 * Prefer clear and simple code.
 * Use type hints where practical.
+* Add clear Chinese comments around important architecture, workflow, and learning points.
+* Do not comment every trivial line; comments should explain intent, boundaries, or non-obvious design choices.
+* Python triple-quoted strings should be used only for real module, class, or function docstrings. Ordinary implementation notes must use `#` comments.
+* Code comments and docstrings should be written in Chinese for learning and review consistency.
 * Keep FastAPI route functions thin.
 * Put business logic in service modules.
 * Do not place complex logic directly inside API route files.
@@ -631,6 +650,10 @@ Keep FastAPI route functions thin. Validate input with Pydantic schemas, call se
 
 * Keep pages simple and clear.
 * Use Element Plus components.
+* Use Tailwind CSS for lightweight layout and spacing utilities.
+* Use vue-i18n for user-facing UI text.
+* The first version should support Simplified Chinese (`zh-CN`) and English (`en-US`).
+* User-facing UI text should go through locale message files instead of being hardcoded directly in Vue templates.
 * Avoid over-designed UI.
 * Prioritize usability for graduation-project demonstration.
 * API calls should be placed under `src/api/`.
@@ -712,6 +735,8 @@ Save result
 
 Backend tests should use `pytest`.
 
+Python dependencies and test commands should be managed through `uv` from the repository root. Do not reintroduce `requirements.txt` unless a deployment target explicitly requires it.
+
 Recommended backend testing scope:
 
 * Service-layer unit tests for host management, task creation, operation module registration, and scheduling logic.
@@ -724,7 +749,7 @@ Frontend testing can remain lightweight in the first version, but all frontend c
 
 Verification expectations:
 
-* After backend changes, run relevant `pytest` tests when the test suite exists.
+* After backend changes, run relevant `uv run pytest` tests when the test suite exists.
 * After frontend changes, run the package manager's build or type-check command when the frontend project exists.
 * If a test or build cannot be run because the project is not initialized yet, state that explicitly in the final response.
 

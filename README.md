@@ -46,7 +46,8 @@ Frontend displays logs and task status
 
 ### Backend
 
-- Python
+- Python 3.12+
+- uv for dependency and virtual environment management
 - FastAPI
 - SQLAlchemy
 - SQLite
@@ -59,8 +60,12 @@ Frontend displays logs and task status
 ### Frontend
 
 - Vue 3
+- Vite
+- pnpm
 - Element Plus
-- TypeScript, if supported by the frontend setup
+- Tailwind CSS
+- TypeScript
+- vue-i18n for Simplified Chinese and English UI text
 
 ### Deployment
 
@@ -81,6 +86,7 @@ Frontend displays logs and task status
 - Ansible Runner integration
 - Execution log storage and display
 - Scheduled inspection jobs triggered by APScheduler
+- Simplified Chinese and English frontend internationalization
 
 ## Built-in Operations Modules
 
@@ -117,18 +123,44 @@ backend/
 │   ├── scheduler/
 │   └── operation_modules/
 ├── tests/
-├── requirements.txt
 └── Dockerfile
 
 frontend/
 ├── src/
 │   ├── api/
+│   ├── i18n/
 │   ├── router/
 │   ├── stores/
 │   ├── views/
 │   └── components/
 ├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── postcss.config.js
+├── tailwind.config.ts
+├── tsconfig.json
 └── vite.config.ts
+
+pyproject.toml
+uv.lock
+docker-compose.yml
+```
+
+## Quick Start
+
+Backend:
+
+```bash
+uv sync
+uv run uvicorn backend.app.main:app --reload
+```
+
+Frontend:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
 ```
 
 ## Development Roadmap
@@ -163,12 +195,13 @@ frontend/
 
 ## Documentation
 
-Important design and development rules are recorded in [AGENTS.md](./AGENTS.md). Future documentation may include:
+Important design and development rules are recorded in [AGENTS.md](./AGENTS.md). More design documents are available in:
 
 - `docs/architecture.md`
 - `docs/database-design.md`
 - `docs/api-design.md`
 - `docs/deployment.md`
+- `docs/frontend-i18n.md`
 - `docs/graduation-design-notes.md`
 
 ## License

@@ -40,7 +40,8 @@ Ansible Runner 在目标主机执行自动化操作
 
 ### 后端
 
-- Python
+- Python 3.12+
+- uv 作为依赖与虚拟环境管理工具
 - FastAPI
 - SQLAlchemy
 - SQLite
@@ -53,8 +54,12 @@ Ansible Runner 在目标主机执行自动化操作
 ### 前端
 
 - Vue 3
+- Vite
+- pnpm
 - Element Plus
-- 如果项目初始化支持，优先使用 TypeScript
+- Tailwind CSS
+- TypeScript
+- vue-i18n 支持中英文界面文案
 
 ### 部署
 
@@ -75,6 +80,7 @@ Ansible Runner 在目标主机执行自动化操作
 - Ansible Runner 执行集成
 - 执行日志存储与展示
 - APScheduler 触发的定时巡检任务
+- 前端中英文双语国际化
 
 ## 内置运维模块
 
@@ -111,18 +117,44 @@ backend/
 │   ├── scheduler/
 │   └── operation_modules/
 ├── tests/
-├── requirements.txt
 └── Dockerfile
 
 frontend/
 ├── src/
 │   ├── api/
+│   ├── i18n/
 │   ├── router/
 │   ├── stores/
 │   ├── views/
 │   └── components/
 ├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── postcss.config.js
+├── tailwind.config.ts
+├── tsconfig.json
 └── vite.config.ts
+
+pyproject.toml
+uv.lock
+docker-compose.yml
+```
+
+## 快速开始
+
+后端：
+
+```bash
+uv sync
+uv run uvicorn backend.app.main:app --reload
+```
+
+前端：
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
 ```
 
 ## 开发路线
@@ -157,12 +189,13 @@ frontend/
 
 ## 文档
 
-详细的架构约束、代理开发规则与毕业设计边界记录在 [AGENTS.md](./AGENTS.md)。后续可补充：
+详细的架构约束、代理开发规则与毕业设计边界记录在 [AGENTS.md](./AGENTS.md)。更多设计文档见：
 
 - `docs/architecture.md`
 - `docs/database-design.md`
 - `docs/api-design.md`
 - `docs/deployment.md`
+- `docs/frontend-i18n.md`
 - `docs/graduation-design-notes.md`
 
 ## 许可证

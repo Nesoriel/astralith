@@ -1,21 +1,56 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-from backend.app.schemas.task import TaskCreate
+from backend.app.core.database import get_db
+from backend.app.schemas.task import TaskCreate, TaskLogsRead, TaskRead
+from backend.app.services.task_service import TaskService
 
 router = APIRouter()
 
 
-@router.post("", status_code=status.HTTP_202_ACCEPTED)
-def create_task(payload: TaskCreate) -> dict[str, object]:
-    """创建执行任务的占位接口。
+def get_task_service(db: Session = Depends(get_db)) -> TaskService:
+    """构造任务服务，保持路由层薄。"""
+    return TaskService(db)
 
-    后续完整实现时，这里应当：
-    1. 校验内置模块与任务是否存在；
-    2. 创建 pending 状态的 Task 记录；
-    3. 投递 Celery 异步任务；
-    4. 立即返回任务信息，而不是阻塞等待 Ansible 执行结束。
+
+@router.get("", response_model=list[TaskRead])
+def list_tasks(service: TaskService = Depends(get_task_service)) -> list[TaskRead]:
+    """列出执行任务。"""
+    return [service.task_to_schema(task) for task in service.list_tasks()]
+
+
+@router.post("", response_model=TaskRead, status_code=status.HTTP_202_ACCEPTED)
+def create_task(
+    payload: TaskCreate,
+    service: TaskService = Depends(get_task_service),
+) -> TaskRead:
+    """创建 pending 状态执行任务。
+
+    v0.1.0 先落库并返回任务记录；真实 Celery + Ansible Runner 执行在 v0.2.0 接入。
     """
-    return {
-        "message": "Task creation endpoint scaffolded. Persistence and Celery dispatch are pending.",
-        "task": payload.model_dump(),
-    }
+    try:
+        task = service.create_task(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return service.task_to_schema(task)
+
+
+@router.get("/{task_id}", response_model=TaskRead)
+def get_task(task_id: int, service: TaskService = Depends(get_task_service)) -> TaskRead:
+    """读取单个执行任务。"""
+    task = service.get_task(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return service.task_to_schema(task)
+
+
+@router.get("/{task_id}/logs", response_model=TaskLogsRead)
+def get_task_logs(task_id: int, service: TaskService = Depends(get_task_service)) -> TaskLogsRead:
+    """读取任务详情与执行日志。"""
+    task = service.get_task(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return TaskLogsRead(
+        task=service.task_to_schema(task),
+        results=[service.result_to_schema(result) for result in service.list_results(task_id)],
+    )

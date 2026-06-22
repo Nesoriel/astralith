@@ -18,6 +18,7 @@ class Task(TimestampMixin, Base):
     module_task_key: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False, index=True)
     target_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    target_ids_json: Mapped[str] = mapped_column(Text, nullable=False)
     parameters_json: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
     started_at: Mapped[datetime | None] = mapped_column()

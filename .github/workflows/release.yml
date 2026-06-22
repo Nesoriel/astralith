@@ -1,0 +1,174 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to publish, for example v0.1.0'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Resolve release tag
+        id: release
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify tag and project version
+        run: |
+          set -euo pipefail
+          git rev-parse --verify "refs/tags/${{ steps.release.outputs.tag }}"
+          python - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          expected = "${{ steps.release.outputs.version }}"
+          text = pathlib.Path("pyproject.toml").read_text(encoding="utf-8")
+          match = re.search(r'^version = "([^"]+)"', text, re.MULTILINE)
+          if not match:
+              sys.exit("pyproject.toml version not found")
+          actual = match.group(1)
+          if actual != expected:
+              sys.exit(f"tag version {expected} does not match pyproject.toml version {actual}")
+          PY
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: uv sync --frozen
+
+      - name: Run backend tests
+        run: uv run pytest
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --dir frontend build
+
+      - name: Generate release notes
+        env:
+          TAG_NAME: ${{ steps.release.outputs.tag }}
+          REPOSITORY: ${{ github.repository }}
+          SERVER_URL: ${{ github.server_url }}
+        run: |
+          set -euo pipefail
+          previous_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -v "^${TAG_NAME}$" | head -n 1 || true)"
+          if [ -n "$previous_tag" ]; then
+            range="${previous_tag}..${TAG_NAME}"
+            export INTRO="Automated release notes generated from commits since \`${previous_tag}\`."
+            export COMPARE_URL="${SERVER_URL}/${REPOSITORY}/compare/${previous_tag}...${TAG_NAME}"
+          else
+            range="${TAG_NAME}"
+            export INTRO="Automated release notes generated from commits included in \`${TAG_NAME}\`."
+            export COMPARE_URL=""
+          fi
+
+          git log "$range" --reverse --pretty=format:'%H%x1f%h%x1f%an%x1f%s' > commits.tsv
+
+          python <<'PY'
+          from collections import OrderedDict
+          import os
+
+          tag = os.environ["TAG_NAME"]
+          intro = os.environ["INTRO"]
+          compare_url = os.environ.get("COMPARE_URL", "")
+
+          groups = OrderedDict([
+              ("feat", ("Features", [])),
+              ("fix", ("Bug Fixes", [])),
+              ("docs", ("Documentation", [])),
+              ("test", ("Tests", [])),
+              ("ci", ("CI", [])),
+              ("chore", ("Maintenance", [])),
+              ("other", ("Other Changes", [])),
+          ])
+
+          def classify(subject: str) -> str:
+              prefix = subject.split(":", 1)[0].lower()
+              kind = prefix.split("(", 1)[0]
+              return kind if kind in groups else "other"
+
+          for line in open("commits.tsv", encoding="utf-8"):
+              line = line.rstrip("\n")
+              if not line:
+                  continue
+              _full, short, author, subject = line.split("\x1f", 3)
+              groups[classify(subject)][1].append(f"- {subject} (`{short}`, {author})")
+
+          with open("release-notes.md", "w", encoding="utf-8") as out:
+              out.write(f"## Astralith {tag}\n\n")
+              out.write(f"{intro}\n")
+              for _key, (title, entries) in groups.items():
+                  if entries:
+                      out.write(f"\n## {title}\n\n")
+                      out.write("\n".join(entries))
+                      out.write("\n")
+              out.write("\n## Validation\n\n")
+              out.write("- `uv run pytest`\n")
+              out.write("- `pnpm --dir frontend build`\n")
+              if compare_url:
+                  out.write(f"\n**Full Changelog**: {compare_url}\n")
+          PY
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release edit "$TAG_NAME" --title "$TAG_NAME" --notes-file release-notes.md --latest
+          else
+            gh release create "$TAG_NAME" \
+              --title "$TAG_NAME" \
+              --notes-file release-notes.md \
+              --latest
+          fi

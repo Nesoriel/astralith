@@ -1,0 +1,20 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ASTRALITH_DATABASE_URL: sqlite:///./backend/data/astralith.db
+      ASTRALITH_REDIS_URL: redis://redis:6379/0
+      ASTRALITH_SECRET_KEY: change-me-in-production
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+    depends_on:
+      - redis

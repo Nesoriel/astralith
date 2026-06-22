@@ -1,9 +1,12 @@
+from typing import Any, cast
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.app.core.database import get_db
 from backend.app.schemas.task import TaskCreate, TaskLogsRead, TaskRead
 from backend.app.services.task_service import TaskService
+from backend.app.workers.tasks import execute_operation_task
 
 router = APIRouter()
 
@@ -32,7 +35,13 @@ def create_task(
         task = service.create_task(payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    dispatch_task(task.id)
     return service.task_to_schema(task)
+
+
+def dispatch_task(task_id: int) -> None:
+    """把任务投递给 Celery，隔离 Celery 动态 delay 属性。"""
+    cast(Any, execute_operation_task).delay(task_id)
 
 
 @router.get("/{task_id}", response_model=TaskRead)

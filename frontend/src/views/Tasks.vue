@@ -5,13 +5,15 @@ import { useI18n } from 'vue-i18n'
 
 import { listHosts, type Host } from '../api/hosts'
 import { listOperationModules, type LocalizedText, type OperationModule } from '../api/operationModules'
-import { createTask, listTasks, type Task, type TaskPayload } from '../api/tasks'
+import { createTask, getTaskLogs, listTasks, type Task, type TaskLogs, type TaskPayload } from '../api/tasks'
 import type { SupportedLocale } from '../i18n'
 
 const { locale, t } = useI18n()
 const hosts = ref<Host[]>([])
 const modules = ref<OperationModule[]>([])
 const tasks = ref<Task[]>([])
+const logs = ref<TaskLogs | null>(null)
+const logsVisible = ref(false)
 const form = ref<TaskPayload>({
   name: t('defaults.taskName'),
   module_key: 'system_inspection',
@@ -43,6 +45,11 @@ async function submitTask(): Promise<void> {
   await createTask(form.value)
   ElMessage.success(t('common.success'))
   await loadData()
+}
+
+async function openLogs(task: Task): Promise<void> {
+  logs.value = await getTaskLogs(task.id)
+  logsVisible.value = true
 }
 
 onMounted(loadData)
@@ -79,7 +86,12 @@ onMounted(loadData)
     </el-card>
 
     <el-card>
-      <template #header>{{ t('nav.tasks') }}</template>
+      <template #header>
+        <div class="flex items-center justify-between">
+          <span>{{ t('nav.tasks') }}</span>
+          <el-button size="small" @click="loadData">{{ t('common.refresh') }}</el-button>
+        </div>
+      </template>
       <el-table :data="tasks" empty-text="-">
         <el-table-column prop="id" :label="t('fields.id')" width="80" />
         <el-table-column prop="name" :label="t('fields.name')" />
@@ -89,7 +101,34 @@ onMounted(loadData)
         <el-table-column :label="t('fields.targets')">
           <template #default="scope">{{ scope.row.target_ids.join(', ') }}</template>
         </el-table-column>
+        <el-table-column :label="t('common.actions')" width="120">
+          <template #default="scope">
+            <el-button size="small" @click="openLogs(scope.row)">{{ t('pages.tasks.logs') }}</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
+
+    <el-drawer v-model="logsVisible" :title="t('pages.tasks.logs')" size="60%">
+      <div v-if="logs" class="space-y-4">
+        <el-descriptions border :column="2">
+          <el-descriptions-item :label="t('fields.id')">{{ logs.task.id }}</el-descriptions-item>
+          <el-descriptions-item :label="t('fields.status')">{{ logs.task.status }}</el-descriptions-item>
+          <el-descriptions-item :label="t('fields.module')">{{ logs.task.module_key }}</el-descriptions-item>
+          <el-descriptions-item :label="t('fields.moduleTask')">{{ logs.task.module_task_key }}</el-descriptions-item>
+        </el-descriptions>
+
+        <el-empty v-if="logs.results.length === 0" :description="t('common.empty')" />
+        <el-card v-for="result in logs.results" :key="result.id" shadow="never">
+          <template #header>
+            {{ t('fields.host') }} #{{ result.host_id ?? '-' }} · {{ result.status }}
+          </template>
+          <p class="font-medium">{{ t('fields.stdout') }}</p>
+          <pre class="overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">{{ result.stdout || '-' }}</pre>
+          <p class="mt-3 font-medium">{{ t('fields.stderr') }}</p>
+          <pre class="overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">{{ result.stderr || '-' }}</pre>
+        </el-card>
+      </div>
+    </el-drawer>
   </main>
 </template>

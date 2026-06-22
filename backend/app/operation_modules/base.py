@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from collections.abc import Callable
 from typing import Any
 
 
@@ -23,6 +24,22 @@ class OperationTask:
     description: LocalizedText
     parameters: dict[str, Any] = field(default_factory=dict)
     ansible_tasks: list[dict[str, Any]] = field(default_factory=list)
+    playbook_builder: Callable[[dict[str, Any]], list[dict[str, Any]]] | None = None
+
+    def build_playbook(self, parameters: dict[str, Any]) -> list[dict[str, Any]]:
+        """根据受控参数生成 Ansible playbook。"""
+        if self.playbook_builder is not None:
+            return self.playbook_builder(parameters)
+        if not self.ansible_tasks:
+            raise ValueError(f"Operation task {self.task_key} has no Ansible tasks")
+        return [
+            {
+                "name": f"Run {self.task_key}",
+                "hosts": "all",
+                "gather_facts": False,
+                "tasks": self.ansible_tasks,
+            }
+        ]
 
 
 @dataclass(frozen=True, slots=True)

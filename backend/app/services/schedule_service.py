@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timezone
-from typing import cast
+from typing import Any, cast
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,6 +14,7 @@ from backend.app.schemas.scheduled_job import (
 )
 from backend.app.schemas.task import TargetType, TaskCreate
 from backend.app.services.task_service import TaskService
+from backend.app.workers.tasks import execute_operation_task
 
 
 class ScheduleService:
@@ -80,7 +81,7 @@ class ScheduleService:
         return job
 
     def trigger_scheduled_job(self, job: ScheduledJob) -> int:
-        """手动触发定时任务，并创建一条 pending 执行任务。"""
+        """手动触发定时任务，创建任务并投递执行队列。"""
         target_type = job.target_type
         if target_type not in ("hosts", "host_groups"):
             raise ValueError("Invalid scheduled job target type")
@@ -96,6 +97,7 @@ class ScheduleService:
         task = TaskService(self.db).create_task(payload)
         job.last_run_at = datetime.now(timezone.utc)
         self.db.commit()
+        dispatch_task(task.id)
         return task.id
 
     def job_to_schema(self, job: ScheduledJob) -> ScheduledJobRead:
@@ -119,3 +121,8 @@ class ScheduleService:
             last_run_at=job.last_run_at,
             next_run_at=job.next_run_at,
         )
+
+
+def dispatch_task(task_id: int) -> None:
+    """把定时任务生成的执行任务投递给 Celery。"""
+    cast(Any, execute_operation_task).delay(task_id)

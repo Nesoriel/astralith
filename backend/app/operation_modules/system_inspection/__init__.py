@@ -12,26 +12,31 @@ system_inspection_module = OperationModule(
             "check_disk",
             LocalizedText(zh_CN="检查磁盘", en_US="Check Disk"),
             LocalizedText(zh_CN="在目标主机执行 df -h。", en_US="Run df -h on target hosts."),
+            ansible_tasks=[{"name": "check_disk", "ansible.builtin.command": "df -h"}],
         ),
         OperationTask(
             "check_memory",
             LocalizedText(zh_CN="检查内存", en_US="Check Memory"),
             LocalizedText(zh_CN="在目标主机执行 free -m。", en_US="Run free -m on target hosts."),
+            ansible_tasks=[{"name": "check_memory", "ansible.builtin.command": "free -m"}],
         ),
         OperationTask(
             "check_load",
             LocalizedText(zh_CN="检查负载", en_US="Check Load"),
             LocalizedText(zh_CN="在目标主机执行 uptime。", en_US="Run uptime on target hosts."),
+            ansible_tasks=[{"name": "check_load", "ansible.builtin.command": "uptime"}],
         ),
         OperationTask(
             "check_uptime",
             LocalizedText(zh_CN="检查运行时间", en_US="Check Uptime"),
             LocalizedText(zh_CN="查看目标主机运行时间。", en_US="Check target host uptime."),
+            ansible_tasks=[{"name": "check_uptime", "ansible.builtin.command": "uptime"}],
         ),
         OperationTask(
             "check_logged_users",
             LocalizedText(zh_CN="检查登录用户", en_US="Check Logged Users"),
             LocalizedText(zh_CN="在目标主机执行 who。", en_US="Run who on target hosts."),
+            ansible_tasks=[{"name": "check_logged_users", "ansible.builtin.command": "who"}],
         ),
     ],
 )

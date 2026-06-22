@@ -62,10 +62,11 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 ## v0.2.0 — Real Execution Loop
 
 - Generate Ansible inventory from selected hosts/groups.
-- Generate playbooks from built-in operation modules.
-- Dispatch Celery worker tasks and persist per-host `TaskResult` rows.
-- Parse Ansible Runner status, stdout, stderr, and event data.
-- Improve task status transitions: `pending -> running -> success|partial_success|failed|cancelled`.
+- Generate playbooks from controlled built-in operation modules.
+- Dispatch task creation to Celery and execute tasks through the worker service boundary.
+- Persist per-host `TaskResult` rows with stdout, stderr, raw events, and timestamps.
+- Parse Ansible Runner status and host events into task states: `running`, `success`, `partial_success`, and `failed`.
+- Display task logs and per-host output in the Vue task page.
 
 ## v0.3.0 — Authentication and Defense Polish
 

@@ -35,6 +35,7 @@ export default {
     sshPort: 'SSH Port',
     sshUser: 'SSH User',
     privateKeyPath: 'Private Key Path',
+    host: 'Host',
     module: 'Module',
     moduleTask: 'Module Task',
     targetType: 'Target Type',
@@ -45,6 +46,8 @@ export default {
     cronExpression: 'Cron Expression',
     enabled: 'Enabled',
     createdAt: 'Created At',
+    stdout: 'Stdout',
+    stderr: 'Stderr',
   },
   targetTypes: {
     hosts: 'Hosts',
@@ -82,7 +85,7 @@ export default {
     },
     tasks: {
       title: 'Tasks',
-      description: 'Create task records and inspect pending status and log entry; real execution lands in v0.2.0.',
+      description: 'Create execution tasks, refresh status, and inspect per-host execution logs.',
       createTitle: 'Create Task',
       logs: 'Logs',
       triggerCreated: 'Created task #{id}',

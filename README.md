@@ -10,15 +10,17 @@ Graduation project title:
 
 ## Current Status
 
-v0.1.0 provides a local demonstration loop:
+v0.2.0 provides a lightweight real execution loop:
 
 - Host CRUD and host group management.
 - Built-in operation module metadata for `system_inspection` and `service_manage`.
-- SQLite-backed task records and log entry API.
-- SQLite-backed scheduled job records with enable, disable, and manual trigger actions.
-- Vue 3 demonstration pages with Simplified Chinese and English i18n.
+- Celery-dispatched task execution through the service boundary.
+- Ansible inventory and playbook generation for controlled built-in tasks.
+- SQLite-backed per-host task results with stdout, stderr, and raw event data.
+- Scheduled job records with enable, disable, and manual trigger actions.
+- Vue 3 task log display with Simplified Chinese and English i18n.
 
-Real Celery + Ansible Runner remote execution is planned for v0.2.0. v0.1.0 intentionally stays lightweight and stable for demonstration.
+The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 
 ## Quick Start
 

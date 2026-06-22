@@ -35,6 +35,7 @@ export default {
     sshPort: 'SSH 端口',
     sshUser: 'SSH 用户',
     privateKeyPath: '私钥路径',
+    host: '主机',
     module: '模块',
     moduleTask: '模块任务',
     targetType: '目标类型',
@@ -45,6 +46,8 @@ export default {
     cronExpression: 'Cron 表达式',
     enabled: '启用状态',
     createdAt: '创建时间',
+    stdout: '标准输出',
+    stderr: '错误输出',
   },
   targetTypes: {
     hosts: '主机',
@@ -82,7 +85,7 @@ export default {
     },
     tasks: {
       title: '执行任务',
-      description: '创建任务记录并查看 pending 状态与日志入口；真实执行将在 v0.2.0 接入。',
+      description: '创建执行任务，刷新状态，并查看每台主机的执行日志。',
       createTitle: '创建执行任务',
       logs: '日志',
       triggerCreated: '已创建任务 #{id}',

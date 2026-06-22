@@ -34,6 +34,8 @@ def create_app() -> FastAPI:
 
     @app.get("/health", tags=["health"])
     def health_check() -> dict[str, str]:
+        """应用根路径下的健康检查接口。"""
+
         # 顶层健康检查，供 Docker、监控或本地调试快速确认服务存活。
         return {"status": "ok", "service": settings.project_name}
 

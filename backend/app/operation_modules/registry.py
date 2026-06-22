@@ -12,6 +12,8 @@ class OperationModuleRegistry:
         self._modules: dict[str, OperationModule] = {}
 
     def register(self, module: OperationModule) -> None:
+        """注册一个受控的内置运维模块。"""
+
         # 同 key 注册会覆盖旧模块，便于测试；正式模块 key 应保持唯一。
         self._modules[module.module_key] = module
 

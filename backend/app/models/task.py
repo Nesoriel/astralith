@@ -8,6 +8,8 @@ from backend.app.models.common import TimestampMixin
 
 
 class Task(TimestampMixin, Base):
+    """一次用户触发或定时触发的运维执行任务。"""
+
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -23,6 +25,8 @@ class Task(TimestampMixin, Base):
 
 
 class TaskResult(Base):
+    """单台目标主机上的任务执行结果与日志。"""
+
     __tablename__ = "task_results"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

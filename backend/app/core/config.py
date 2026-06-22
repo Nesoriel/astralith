@@ -25,6 +25,8 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
+    """读取并缓存应用配置。"""
+
     # 缓存配置对象，避免每次依赖注入都重新解析环境变量。
     return Settings()
 

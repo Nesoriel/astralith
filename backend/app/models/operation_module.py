@@ -6,6 +6,8 @@ from backend.app.models.common import TimestampMixin
 
 
 class OperationModule(TimestampMixin, Base):
+    """数据库中的内置运维模块元数据。"""
+
     __tablename__ = "operation_modules"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -16,6 +18,8 @@ class OperationModule(TimestampMixin, Base):
 
 
 class OperationModuleTask(TimestampMixin, Base):
+    """数据库中的内置运维模块任务元数据。"""
+
     __tablename__ = "operation_module_tasks"
     __table_args__ = (UniqueConstraint("module_key", "task_key", name="uq_operation_module_task"),)
 

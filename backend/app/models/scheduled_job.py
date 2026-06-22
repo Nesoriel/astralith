@@ -8,6 +8,8 @@ from backend.app.models.common import TimestampMixin
 
 
 class ScheduledJob(TimestampMixin, Base):
+    """APScheduler 管理的定时巡检任务配置。"""
+
     __tablename__ = "scheduled_jobs"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

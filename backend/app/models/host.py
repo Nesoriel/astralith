@@ -6,6 +6,11 @@ from backend.app.models.common import TimestampMixin
 
 
 class Host(TimestampMixin, Base):
+    """受管 Linux 主机。
+
+    只保存管理员提供的 SSH 私钥路径，不保存服务器 SSH 密码或私钥内容。
+    """
+
     __tablename__ = "hosts"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -18,6 +23,8 @@ class Host(TimestampMixin, Base):
 
 
 class HostGroup(TimestampMixin, Base):
+    """主机分组，用于批量选择执行目标。"""
+
     __tablename__ = "host_groups"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -27,6 +34,8 @@ class HostGroup(TimestampMixin, Base):
 
 
 class HostGroupMember(Base):
+    """主机与主机组的成员关系表。"""
+
     __tablename__ = "host_group_members"
     __table_args__ = (UniqueConstraint("group_id", "host_id", name="uq_host_group_member"),)
 

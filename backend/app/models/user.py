@@ -6,6 +6,11 @@ from backend.app.models.common import TimestampMixin
 
 
 class User(TimestampMixin, Base):
+    """平台登录用户。
+
+    第一版只保留 admin/user 两类角色，避免过早引入复杂 RBAC。
+    """
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

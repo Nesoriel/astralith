@@ -2,143 +2,23 @@
 
 [English](./README.md) | 简体中文
 
-Astralith，中文代号“星磐”，是 Nesoriel 开源组织下的轻量级自动化运维平台。项目基于 FastAPI 与 Ansible Runner 构建，面向中小型 Linux 服务器环境，重点提供主机管理、Ansible 自动化执行、定时巡检、执行日志与内置运维模块能力。
+Astralith（星磐）是面向中小型 Linux 服务器环境的轻量级自动化运维平台，基于 FastAPI、Ansible Runner、SQLite、Celery、APScheduler 与 Vue 3 构建。
 
 毕业设计题目：
 
 > 基于 FastAPI 与 Ansible 的轻量级自动化运维平台设计与实现
 
-## 项目目标
+## 当前状态
 
-Astralith 的目标是实现一个实用、可维护、易演示的轻量级自动化运维平台，而不是大型企业 CMDB、堡垒机、Kubernetes 管理平台或完整 CI/CD 系统。
+v0.1.0 提供本地演示闭环：
 
-核心业务流程：
+- 主机 CRUD 与主机组管理。
+- `system_inspection` 与 `service_manage` 内置运维模块元数据。
+- 基于 SQLite 的任务记录与日志入口 API。
+- 基于 SQLite 的定时任务记录，支持启用、禁用与手动触发。
+- Vue 3 演示页面，并支持简体中文与英文 i18n。
 
-```text
-用户登录
-  ↓
-添加 Linux 主机
-  ↓
-测试 Ansible 连通性
-  ↓
-选择主机或主机组
-  ↓
-选择运维任务
-  ↓
-提交任务到后端
-  ↓
-Celery 异步执行任务
-  ↓
-Ansible Runner 在目标主机执行自动化操作
-  ↓
-执行结果保存到 SQLite
-  ↓
-前端展示任务状态与执行日志
-```
-
-## 技术栈
-
-### 后端
-
-- Python 3.12+
-- uv 作为依赖与虚拟环境管理工具
-- FastAPI
-- SQLAlchemy
-- SQLite
-- Ansible Runner
-- Celery
-- Redis
-- APScheduler
-- JWT 认证
-
-### 前端
-
-- Vue 3
-- Vite
-- pnpm
-- Element Plus
-- Tailwind CSS
-- TypeScript
-- vue-i18n 支持中英文界面文案
-
-### 部署
-
-- Docker Compose
-- SQLite 用于本地开发和毕业设计部署
-- Redis 作为 Celery broker
-
-## 核心功能
-
-- 用户登录与 JWT 认证
-- Linux 主机管理
-- 主机组管理
-- 基于 SSH 密钥的 Ansible 连通性测试
-- 内置运维模块注册与查询
-- 系统巡检任务
-- 服务管理任务
-- 基于 Celery 的异步任务执行
-- Ansible Runner 执行集成
-- 执行日志存储与展示
-- APScheduler 触发的定时巡检任务
-- 前端中英文双语国际化
-
-## 内置运维模块
-
-第一版只实现内部内置运维模块，不实现用户上传插件，也不执行用户上传的 Python 代码。
-
-计划模块：
-
-- `system_inspection`：系统巡检
-  - `check_disk`：检查磁盘
-  - `check_memory`：检查内存
-  - `check_load`：检查系统负载
-  - `check_uptime`：检查运行时间
-  - `check_logged_users`：检查登录用户
-- `service_manage`：服务管理
-  - `service_status`：查看服务状态
-  - `service_start`：启动服务
-  - `service_stop`：停止服务
-  - `service_restart`：重启服务
-  - `service_reload`：重载服务
-- `docker_manage`：Docker 基础管理，可作为后续轻量扩展或演示模块
-
-## 建议项目结构
-
-```text
-backend/
-├── app/
-│   ├── main.py
-│   ├── core/
-│   ├── models/
-│   ├── schemas/
-│   ├── api/
-│   ├── services/
-│   ├── workers/
-│   ├── scheduler/
-│   └── operation_modules/
-├── tests/
-└── Dockerfile
-
-frontend/
-├── src/
-│   ├── api/
-│   ├── i18n/
-│   ├── router/
-│   ├── stores/
-│   ├── views/
-│   └── components/
-├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
-├── postcss.config.js
-├── tailwind.config.ts
-├── tsconfig.json
-└── vite.config.ts
-
-pyproject.toml
-uv.lock
-docker-compose.yml
-```
+真实 Celery + Ansible Runner 远程执行规划到 v0.2.0。v0.1.0 刻意保持轻量、稳定，便于演示与答辩。
 
 ## 快速开始
 
@@ -157,46 +37,47 @@ pnpm install
 pnpm dev
 ```
 
-## v0.1.0 范围
+验证：
 
-当前 v0.1.0 的目标是提供一个可本地运行、可毕业答辩演示的最小闭环：
+```bash
+uv run pytest
+pnpm --dir frontend build
+```
 
-- 后端健康检查接口。
-- 主机 CRUD 与连接测试入口。
-- 主机组 CRUD 与成员关系管理。
-- `system_inspection` 与 `service_manage` 内置运维模块列表。
-- 基于 SQLite 的任务创建、任务列表与任务日志入口。
-- 基于 SQLite 的定时任务创建、启用、禁用与手动触发。
-- Vue 仪表盘，以及主机、主机组、模块、任务、定时任务演示页面。
-- 前端简体中文与英文双语 i18n。
+## 核心流程
 
-真实 Celery + Ansible Runner 远程执行规划到 v0.2.0，确保 v0.1.0 足够稳定、轻量、易演示。
+```text
+添加 Linux 主机
+  -> 选择主机或主机组
+  -> 选择内置运维任务
+  -> 创建执行任务
+  -> 状态与日志保存到 SQLite
+  -> 前端查看结果
+```
 
-## 开发路线
+## 技术栈
 
-版本路线见 [docs/development-roadmap.md](./docs/development-roadmap.md)。
-
-## 安全原则
-
-- 不存储被管理服务器的 SSH 密码。
-- 优先保存 SSH 私钥路径，而不是原始私钥内容。
-- 不允许用户上传并执行 Python 代码。
-- 不实现动态第三方插件安装。
-- 不记录 JWT 密钥、私钥内容或敏感环境变量。
-- 所有影响远程主机的操作必须记录日志。
-- 破坏性操作应在 API 或前端层面要求明确确认。
+- 后端：Python 3.12+、uv、FastAPI、SQLAlchemy、SQLite、Celery、Redis、APScheduler、Ansible Runner、pytest。
+- 前端：Vue 3、Vite、pnpm、Element Plus、Tailwind CSS、TypeScript、vue-i18n。
+- 部署：Docker Compose、SQLite、Redis。
 
 ## 文档
 
-详细的架构约束、代理开发规则与毕业设计边界记录在 [AGENTS.md](./AGENTS.md)。更多设计文档见：
+- `AGENTS.md`：项目边界、编码规则与架构约束。
+- `docs/development-roadmap.md`：版本路线。
+- `docs/architecture.md`：架构概览。
+- `docs/api-design.md`：REST API 设计。
+- `docs/database-design.md`：数据库表设计。
+- `docs/deployment.md`：部署说明。
+- `docs/frontend-i18n.md`：前端 i18n 规则。
+- `docs/graduation-design-notes.md`：毕业设计说明。
 
-- `docs/architecture.md`
-- `docs/database-design.md`
-- `docs/api-design.md`
-- `docs/development-roadmap.md`
-- `docs/deployment.md`
-- `docs/frontend-i18n.md`
-- `docs/graduation-design-notes.md`
+## 安全边界
+
+- 不存储被管理服务器的 SSH 密码。
+- 保存 SSH 私钥路径，而不是原始私钥内容。
+- 不允许用户上传 Python 插件或执行任意代码。
+- 远程操作必须记录日志，并通过服务层封装。
 
 ## 许可证
 

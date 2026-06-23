@@ -94,6 +94,10 @@ def test_ansible_service_parses_runner_events(monkeypatch: Any, tmp_path: Any) -
 
     assert captured["private_data_dir"] == str(tmp_path)
     assert captured["inventory"] == {"all": {"hosts": {"demo": {"ansible_host": "127.0.0.1"}}}}
+    assert captured["playbook"] == "main.json"
+    assert json.loads((tmp_path / "project" / "main.json").read_text()) == [
+        {"hosts": "all", "tasks": []}
+    ]
     assert result.status == "successful"
     assert result.stdout == "ok stdout"
     assert result.raw_events == [{"event": "runner_on_ok", "event_data": {"host": "demo"}}]

@@ -1,7 +1,8 @@
 from collections.abc import Generator
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from backend.app.core.config import settings
@@ -33,6 +34,31 @@ def init_db() -> None:
     from backend.app import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    ensure_sqlite_schema(engine)
+
+
+def ensure_sqlite_schema(database_engine: Engine) -> None:
+    """补齐原型阶段 SQLite 开发库中缺失的兼容列。
+
+    v0.2.0 引入任务目标 ID 持久化字段后，旧开发库只靠 create_all 不会自动变更
+    已存在表结构。这里先做极小范围的 SQLite 兼容迁移，避免前端任务列表读取旧库时报
+    no such column；表结构稳定后应迁移到正式 Alembic 版本管理。
+    """
+    if database_engine.dialect.name != "sqlite":
+        return
+
+    inspector = inspect(database_engine)
+    if not inspector.has_table("tasks"):
+        return
+
+    task_columns = {column["name"] for column in inspector.get_columns("tasks")}
+    if "target_ids_json" in task_columns:
+        return
+
+    with database_engine.begin() as connection:
+        connection.execute(text("ALTER TABLE tasks ADD COLUMN target_ids_json TEXT"))
+        # 旧原型任务没有目标 ID 信息时统一置为空列表，保证列表页和日志页可读。
+        connection.execute(text("UPDATE tasks SET target_ids_json = '[]' WHERE target_ids_json IS NULL"))
 
 
 def get_db() -> Generator[Session, None, None]:

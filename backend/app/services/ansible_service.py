@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import json
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +26,9 @@ class AnsibleService:
     """
 
     def __init__(self, private_data_dir: Path | str = "backend/.runner") -> None:
-        self.private_data_dir = Path(private_data_dir)
+        # Runner 会把工作目录切到 project 下执行 playbook；使用绝对路径可避免
+        # 相对 private_data_dir 在 cwd 变化后被拼成 project/backend/.runner/...。
+        self.private_data_dir = Path(private_data_dir).resolve()
 
     @staticmethod
     def build_inventory(hosts: list[Host]) -> dict[str, Any]:
@@ -47,10 +50,16 @@ class AnsibleService:
     ) -> AnsibleExecutionResult:
         """执行内置模块生成的 Ansible playbook。"""
         self.private_data_dir.mkdir(parents=True, exist_ok=True)
+        project_dir = self.private_data_dir / "project"
+        project_dir.mkdir(parents=True, exist_ok=True)
+        playbook_path = project_dir / "main.json"
+        # ansible-runner 的 playbook 参数指向 project 目录内的文件名；直接传 Python
+        # 对象会让真实 Runner 去寻找不存在的 main.json，导致页面任务永远失败。
+        playbook_path.write_text(json.dumps(playbook, ensure_ascii=False), encoding="utf-8")
         runner_result = ansible_runner.run(
             private_data_dir=str(self.private_data_dir),
             inventory=inventory,
-            playbook=playbook,
+            playbook="main.json",
         )
         stdout = _read_runner_stream(getattr(runner_result, "stdout", ""))
         stderr = _read_runner_stream(getattr(runner_result, "stderr", ""))

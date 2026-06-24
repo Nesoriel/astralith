@@ -10,6 +10,16 @@ export default {
     tasks: '执行任务',
     scheduledJobs: '定时任务',
   },
+  auth: {
+    title: '登录 Astralith',
+    description: '使用本地管理员账号进入自动化运维演示平台。',
+    username: '用户名',
+    password: '密码',
+    login: '登录',
+    logout: '退出登录',
+    loginSuccess: '登录成功',
+    loginFailed: '用户名或密码错误',
+  },
   common: {
     actions: '操作',
     add: '新增',

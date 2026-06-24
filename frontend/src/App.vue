@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 
+import { clearToken, getCurrentUser, isAuthenticated, type CurrentUser } from './api/auth'
 import { localeLabels, persistLocale, supportedLocales, type SupportedLocale } from './i18n'
 
 const { locale, t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const currentUser = ref<CurrentUser | null>(null)
+const isLoginRoute = computed(() => route.path === '/login')
 
 const activeLocale = computed({
   get: () => locale.value as SupportedLocale,
@@ -14,11 +20,34 @@ const activeLocale = computed({
     persistLocale(value)
   },
 })
+
+async function loadCurrentUser(): Promise<void> {
+  if (!isAuthenticated() || isLoginRoute.value) {
+    currentUser.value = null
+    return
+  }
+  try {
+    currentUser.value = await getCurrentUser()
+  } catch {
+    clearToken()
+    currentUser.value = null
+    await router.push('/login')
+  }
+}
+
+async function logout(): Promise<void> {
+  clearToken()
+  currentUser.value = null
+  await router.push('/login')
+}
+
+watch(() => route.fullPath, loadCurrentUser, { immediate: true })
 </script>
 
 <template>
+  <router-view v-if="isLoginRoute" />
   <!-- 主布局：左侧导航 + 右侧页面内容，先服务毕业设计演示路径。 -->
-  <el-container class="min-h-screen">
+  <el-container v-else class="min-h-screen">
     <el-aside width="220px" class="border-r border-slate-200 bg-white">
       <div class="px-5 py-4 text-lg font-semibold text-slate-900">{{ t('app.name') }}</div>
       <!-- Element Plus 菜单直接使用 vue-router 路由跳转。 -->
@@ -32,7 +61,11 @@ const activeLocale = computed({
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header class="flex items-center justify-end border-b border-slate-200 bg-white">
+      <el-header class="flex items-center justify-end gap-3 border-b border-slate-200 bg-white">
+        <span v-if="currentUser" class="text-sm text-slate-600">
+          {{ currentUser.username }} · {{ currentUser.role }}
+        </span>
+        <el-button size="small" @click="logout">{{ t('auth.logout') }}</el-button>
         <el-select v-model="activeLocale" class="w-36" size="small">
           <el-option
             v-for="item in supportedLocales"

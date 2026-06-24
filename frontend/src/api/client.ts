@@ -1,13 +1,19 @@
 const API_BASE = '/api/v1'
+const AUTH_TOKEN_KEY = 'astralith.auth.token'
 
 export async function requestJson<T>(path: string, init: RequestInit = {}): Promise<T> {
-  // 统一封装 JSON 请求，后续可在这里加入 token、错误提示和刷新登录逻辑。
+  // 统一封装 JSON 请求，自动携带登录令牌，后续可在这里加入刷新登录逻辑。
+  const token = localStorage.getItem(AUTH_TOKEN_KEY)
+  const headers = new Headers(init.headers)
+  if (!headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
+  if (token !== null && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`)
+  }
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...init.headers,
-    },
     ...init,
+    headers,
   })
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`)

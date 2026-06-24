@@ -10,6 +10,16 @@ export default {
     tasks: 'Tasks',
     scheduledJobs: 'Scheduled Jobs',
   },
+  auth: {
+    title: 'Log in to Astralith',
+    description: 'Use the local administrator account to enter the automated operations demo.',
+    username: 'Username',
+    password: 'Password',
+    login: 'Log in',
+    logout: 'Log out',
+    loginSuccess: 'Logged in successfully',
+    loginFailed: 'Invalid username or password',
+  },
   common: {
     actions: 'Actions',
     add: 'Add',

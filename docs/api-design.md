@@ -2,11 +2,14 @@
 
 All API routes should use the `/api/v1` prefix.
 
-## v0.1.0 Endpoints
+## v0.3.0 Endpoints
 
 ```text
 GET    /health
 GET    /api/v1/status
+
+POST   /api/v1/auth/login
+GET    /api/v1/auth/me
 
 GET    /api/v1/hosts
 POST   /api/v1/hosts
@@ -41,10 +44,16 @@ POST   /api/v1/scheduled-jobs/{job_id}/disable
 POST   /api/v1/scheduled-jobs/{job_id}/trigger
 ```
 
+## Authentication Rules
+
+- `POST /api/v1/auth/login` returns a Bearer JWT for active local users.
+- `GET /api/v1/auth/me` requires a valid Bearer JWT.
+- Write operations such as creating/updating/deleting hosts, groups, tasks, and scheduled jobs require a valid Bearer JWT.
+- Read operations remain available for the lightweight dashboard and graduation demonstration flow.
+
 ## Deferred Endpoints
 
-- `/api/v1/auth` is planned for a later release with JWT-protected routes.
-- Real Ansible connectivity testing and execution are planned for v0.2.0 through the service/Celery boundary.
+- Real Ansible connectivity testing for the dedicated host test button is still deferred; task execution already goes through the service/Celery boundary.
 
 ## Route Layer Rules
 

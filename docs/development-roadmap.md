@@ -79,10 +79,11 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 
 ## v0.3.0 — Authentication and Defense Polish
 
-- Add login and JWT-protected API routes.
-- Seed an initial admin user for local deployment.
-- Improve dashboard charts and task log presentation.
-- Add Docker Compose quick-start verification notes.
+- Phase 1: add JSON login, `/api/v1/auth/me`, JWT validation, and an initial local admin user for deployment and demo startup.
+- Phase 2: add a frontend login page, token storage, and route guard for the main app shell.
+- Phase 3: apply authentication dependencies to write operations first, then evaluate read-route protection for the demo flow.
+- Phase 4: improve dashboard cards/charts and task log presentation for graduation defense.
+- Phase 5: add Docker Compose quick-start verification notes.
 
 ## v0.4.0 — Scheduled Execution and Operational Hardening
 

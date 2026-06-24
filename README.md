@@ -10,8 +10,11 @@ Graduation project title:
 
 ## Current Status
 
-v0.2.1 provides a polished lightweight real execution loop:
+v0.3.0 provides a lightweight authenticated demonstration loop:
 
+- Local admin login with JWT authentication and `/api/v1/auth/me`.
+- Frontend login page, token storage, route guard, and logout action.
+- JWT protection for backend write operations while keeping read APIs useful for dashboard display.
 - Host CRUD and host group management.
 - Built-in operation module metadata for `system_inspection` and `service_manage`.
 - Celery-dispatched task execution through the service boundary.
@@ -19,7 +22,7 @@ v0.2.1 provides a polished lightweight real execution loop:
 - SQLite-backed per-host task results with stdout, stderr, and raw event data.
 - Scheduled job records with enable, disable, and manual trigger actions.
 - Vue 3 task log display with Simplified Chinese and English i18n.
-- Clean test/build output for the current v0.2.x toolchain.
+- Clean test/build output for the current v0.3.x toolchain.
 
 The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 
@@ -47,10 +50,18 @@ uv run pytest
 pnpm --dir frontend build
 ```
 
+Default local login:
+
+```text
+username: admin
+password: admin123
+```
+
 ## Core Workflow
 
 ```text
-Add Linux hosts
+Log in
+  -> add Linux hosts
   -> select hosts or host groups
   -> choose a built-in operation task
   -> create an execution task

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.routes.auth import get_current_user
 from backend.app.core.database import get_db
 from backend.app.schemas.host import HostConnectionTestRead, HostCreate, HostRead, HostUpdate
 from backend.app.services.host_service import HostService
@@ -22,6 +23,7 @@ def list_hosts(service: HostService = Depends(get_host_service)) -> list[HostRea
 @router.post("", response_model=HostRead, status_code=status.HTTP_201_CREATED)
 def create_host(
     payload: HostCreate,
+    _current_user = Depends(get_current_user),
     service: HostService = Depends(get_host_service),
 ) -> HostRead:
     """创建受管主机。"""
@@ -41,6 +43,7 @@ def get_host(host_id: int, service: HostService = Depends(get_host_service)) -> 
 def update_host(
     host_id: int,
     payload: HostUpdate,
+    _current_user = Depends(get_current_user),
     service: HostService = Depends(get_host_service),
 ) -> HostRead:
     """更新受管主机。"""
@@ -51,7 +54,11 @@ def update_host(
 
 
 @router.delete("/{host_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_host(host_id: int, service: HostService = Depends(get_host_service)) -> Response:
+def delete_host(
+    host_id: int,
+    _current_user = Depends(get_current_user),
+    service: HostService = Depends(get_host_service),
+) -> Response:
     """删除受管主机。"""
     host = service.get_host(host_id)
     if host is None:
@@ -63,6 +70,7 @@ def delete_host(host_id: int, service: HostService = Depends(get_host_service)) 
 @router.post("/{host_id}/test-connection", response_model=HostConnectionTestRead)
 def test_host_connection(
     host_id: int,
+    _current_user = Depends(get_current_user),
     service: HostService = Depends(get_host_service),
 ) -> HostConnectionTestRead:
     """v0.1.0 连接测试占位接口。

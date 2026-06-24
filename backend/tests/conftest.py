@@ -8,6 +8,7 @@ from sqlalchemy.pool import StaticPool
 
 from backend.app.core.database import Base, get_db
 from backend.app.main import app
+from backend.app.services.auth_service import AuthService
 
 
 @pytest.fixture()
@@ -22,6 +23,7 @@ def db_session() -> Generator[Session, None, None]:
     TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
+    AuthService(db).ensure_default_admin()
     try:
         yield db
     finally:
@@ -46,6 +48,11 @@ def client() -> Generator[TestClient, None, None]:
     )
     TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
     Base.metadata.create_all(bind=engine)
+    seed_db = TestingSessionLocal()
+    try:
+        AuthService(seed_db).ensure_default_admin()
+    finally:
+        seed_db.close()
 
     def override_get_db() -> Generator[Session, None, None]:
         db = TestingSessionLocal()

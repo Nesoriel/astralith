@@ -17,6 +17,16 @@ from backend.app.services.task_service import TaskService, validate_task_status_
 from backend.app.workers import tasks as worker_tasks
 
 
+def auth_headers(client: TestClient) -> dict[str, str]:
+    """登录测试管理员并返回 Bearer 认证头。"""
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"username": "admin", "password": "admin123"},
+    )
+    assert response.status_code == 200
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
+
 def test_system_inspection_tasks_generate_command_playbooks() -> None:
     """系统巡检模块任务应生成受控的 Ansible command playbook。"""
     module = registry.get_module("system_inspection")
@@ -249,6 +259,7 @@ def test_worker_executes_task_with_database_session(client: TestClient, monkeypa
     """Celery worker 入口应复用任务服务完成实际执行。"""
     response = client.post(
         "/api/v1/hosts",
+        headers=auth_headers(client),
         json={
             "name": "worker-host",
             "ip_address": "127.0.0.1",
@@ -261,6 +272,7 @@ def test_worker_executes_task_with_database_session(client: TestClient, monkeypa
     host_id = response.json()["id"]
     task_response = client.post(
         "/api/v1/tasks",
+        headers=auth_headers(client),
         json={
             "name": "Worker task",
             "module_key": "system_inspection",
@@ -287,6 +299,7 @@ def test_create_task_dispatches_celery(client: TestClient, monkeypatch: Any) -> 
     """创建任务后 API 应把任务 ID 投递给 Celery worker。"""
     response = client.post(
         "/api/v1/hosts",
+        headers=auth_headers(client),
         json={
             "name": "dispatch-host",
             "ip_address": "127.0.0.1",
@@ -304,6 +317,7 @@ def test_create_task_dispatches_celery(client: TestClient, monkeypatch: Any) -> 
     monkeypatch.setattr("backend.app.api.routes.tasks.dispatch_task", fake_dispatch)
     task_response = client.post(
         "/api/v1/tasks",
+        headers=auth_headers(client),
         json={
             "name": "Dispatch task",
             "module_key": "system_inspection",

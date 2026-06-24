@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Any
 
 import bcrypt
 import jwt
@@ -26,3 +27,8 @@ def create_access_token(subject: str, expires_delta: timedelta | None = None) ->
     )
     payload = {"sub": subject, "exp": expire}
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
+
+
+def decode_access_token(token: str) -> dict[str, Any]:
+    """解码并校验 JWT 访问令牌。"""
+    return jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])

@@ -35,6 +35,18 @@ def init_db() -> None:
 
     Base.metadata.create_all(bind=engine)
     ensure_sqlite_schema(engine)
+    seed_default_admin()
+
+
+def seed_default_admin() -> None:
+    """初始化本地管理员账号，保证毕业设计演示可以直接登录。"""
+    from backend.app.services.auth_service import AuthService
+
+    db = SessionLocal()
+    try:
+        AuthService(db).ensure_default_admin()
+    finally:
+        db.close()
 
 
 def ensure_sqlite_schema(database_engine: Engine) -> None:

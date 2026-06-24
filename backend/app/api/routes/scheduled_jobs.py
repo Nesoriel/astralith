@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.routes.auth import get_current_user
 from backend.app.core.database import get_db
 from backend.app.schemas.scheduled_job import (
     ScheduledJobCreate,
@@ -29,6 +30,7 @@ def list_scheduled_jobs(
 @router.post("", response_model=ScheduledJobRead, status_code=status.HTTP_201_CREATED)
 def create_scheduled_job(
     payload: ScheduledJobCreate,
+    _current_user = Depends(get_current_user),
     service: ScheduleService = Depends(get_schedule_service),
 ) -> ScheduledJobRead:
     """创建定时任务。"""
@@ -55,6 +57,7 @@ def get_scheduled_job(
 def update_scheduled_job(
     job_id: int,
     payload: ScheduledJobUpdate,
+    _current_user = Depends(get_current_user),
     service: ScheduleService = Depends(get_schedule_service),
 ) -> ScheduledJobRead:
     """更新定时任务。"""
@@ -71,6 +74,7 @@ def update_scheduled_job(
 @router.delete("/{job_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_scheduled_job(
     job_id: int,
+    _current_user = Depends(get_current_user),
     service: ScheduleService = Depends(get_schedule_service),
 ) -> Response:
     """删除定时任务。"""
@@ -84,6 +88,7 @@ def delete_scheduled_job(
 @router.post("/{job_id}/enable", response_model=ScheduledJobRead)
 def enable_scheduled_job(
     job_id: int,
+    _current_user = Depends(get_current_user),
     service: ScheduleService = Depends(get_schedule_service),
 ) -> ScheduledJobRead:
     """启用定时任务。"""
@@ -96,6 +101,7 @@ def enable_scheduled_job(
 @router.post("/{job_id}/disable", response_model=ScheduledJobRead)
 def disable_scheduled_job(
     job_id: int,
+    _current_user = Depends(get_current_user),
     service: ScheduleService = Depends(get_schedule_service),
 ) -> ScheduledJobRead:
     """禁用定时任务。"""
@@ -108,6 +114,7 @@ def disable_scheduled_job(
 @router.post("/{job_id}/trigger", response_model=ScheduledJobTriggerRead)
 def trigger_scheduled_job(
     job_id: int,
+    _current_user = Depends(get_current_user),
     service: ScheduleService = Depends(get_schedule_service),
 ) -> ScheduledJobTriggerRead:
     """手动触发定时任务并创建一条执行任务记录。"""

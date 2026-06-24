@@ -1,10 +1,21 @@
 from starlette.testclient import TestClient
 
 
+def auth_headers(client: TestClient) -> dict[str, str]:
+    """登录测试管理员并返回 Bearer 认证头。"""
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"username": "admin", "password": "admin123"},
+    )
+    assert response.status_code == 200
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
+
 def create_host(client: TestClient) -> dict[str, object]:
     """创建测试主机并返回响应数据。"""
     response = client.post(
         "/api/v1/hosts",
+        headers=auth_headers(client),
         json={
             "name": "demo-host",
             "ip_address": "192.0.2.10",
@@ -28,6 +39,7 @@ def test_host_crud_and_connection_placeholder(client: TestClient) -> None:
 
     update_response = client.put(
         f"/api/v1/hosts/{host['id']}",
+        headers=auth_headers(client),
         json={
             "name": "updated-host",
             "ip_address": "192.0.2.11",
@@ -40,11 +52,14 @@ def test_host_crud_and_connection_placeholder(client: TestClient) -> None:
     assert update_response.status_code == 200
     assert update_response.json()["ssh_port"] == 2222
 
-    test_response = client.post(f"/api/v1/hosts/{host['id']}/test-connection")
+    test_response = client.post(
+        f"/api/v1/hosts/{host['id']}/test-connection",
+        headers=auth_headers(client),
+    )
     assert test_response.status_code == 200
     assert test_response.json()["status"] == "pending"
 
-    delete_response = client.delete(f"/api/v1/hosts/{host['id']}")
+    delete_response = client.delete(f"/api/v1/hosts/{host['id']}", headers=auth_headers(client))
     assert delete_response.status_code == 204
     assert client.get(f"/api/v1/hosts/{host['id']}").status_code == 404
 
@@ -54,16 +69,24 @@ def test_host_group_membership(client: TestClient) -> None:
     host = create_host(client)
     group_response = client.post(
         "/api/v1/host-groups",
+        headers=auth_headers(client),
         json={"name": "web", "description": "web servers"},
     )
     assert group_response.status_code == 201
     group = group_response.json()
 
-    add_response = client.post(f"/api/v1/host-groups/{group['id']}/hosts", json={"host_id": host["id"]})
+    add_response = client.post(
+        f"/api/v1/host-groups/{group['id']}/hosts",
+        headers=auth_headers(client),
+        json={"host_id": host["id"]},
+    )
     assert add_response.status_code == 200
     assert add_response.json()["host_ids"] == [host["id"]]
 
-    remove_response = client.delete(f"/api/v1/host-groups/{group['id']}/hosts/{host['id']}")
+    remove_response = client.delete(
+        f"/api/v1/host-groups/{group['id']}/hosts/{host['id']}",
+        headers=auth_headers(client),
+    )
     assert remove_response.status_code == 204
 
 
@@ -72,6 +95,7 @@ def test_task_creation_and_logs(client: TestClient) -> None:
     host = create_host(client)
     response = client.post(
         "/api/v1/tasks",
+        headers=auth_headers(client),
         json={
             "name": "Check disk",
             "module_key": "system_inspection",
@@ -97,6 +121,7 @@ def test_scheduled_job_manual_trigger(client: TestClient) -> None:
     host = create_host(client)
     create_response = client.post(
         "/api/v1/scheduled-jobs",
+        headers=auth_headers(client),
         json={
             "name": "Daily disk check",
             "module_key": "system_inspection",
@@ -112,15 +137,24 @@ def test_scheduled_job_manual_trigger(client: TestClient) -> None:
     assert create_response.status_code == 201
     job = create_response.json()
 
-    disable_response = client.post(f"/api/v1/scheduled-jobs/{job['id']}/disable")
+    disable_response = client.post(
+        f"/api/v1/scheduled-jobs/{job['id']}/disable",
+        headers=auth_headers(client),
+    )
     assert disable_response.status_code == 200
     assert disable_response.json()["enabled"] is False
 
-    enable_response = client.post(f"/api/v1/scheduled-jobs/{job['id']}/enable")
+    enable_response = client.post(
+        f"/api/v1/scheduled-jobs/{job['id']}/enable",
+        headers=auth_headers(client),
+    )
     assert enable_response.status_code == 200
     assert enable_response.json()["enabled"] is True
 
-    trigger_response = client.post(f"/api/v1/scheduled-jobs/{job['id']}/trigger")
+    trigger_response = client.post(
+        f"/api/v1/scheduled-jobs/{job['id']}/trigger",
+        headers=auth_headers(client),
+    )
     assert trigger_response.status_code == 200
     assert trigger_response.json()["scheduled_job_id"] == job["id"]
     assert trigger_response.json()["task_id"] > 0

@@ -3,6 +3,7 @@ from typing import Any, cast
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.routes.auth import get_current_user
 from backend.app.core.database import get_db
 from backend.app.schemas.task import TaskCreate, TaskLogsRead, TaskRead
 from backend.app.services.task_service import TaskService
@@ -25,6 +26,7 @@ def list_tasks(service: TaskService = Depends(get_task_service)) -> list[TaskRea
 @router.post("", response_model=TaskRead, status_code=status.HTTP_202_ACCEPTED)
 def create_task(
     payload: TaskCreate,
+    _current_user = Depends(get_current_user),
     service: TaskService = Depends(get_task_service),
 ) -> TaskRead:
     """创建 pending 状态执行任务。

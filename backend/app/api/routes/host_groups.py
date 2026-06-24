@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.routes.auth import get_current_user
 from backend.app.core.database import get_db
 from backend.app.models.host import HostGroup
 from backend.app.schemas.host import HostGroupCreate, HostGroupMemberCreate, HostGroupRead, HostGroupUpdate
@@ -30,6 +31,7 @@ def list_host_groups(service: HostService = Depends(get_host_service)) -> list[H
 @router.post("", response_model=HostGroupRead, status_code=status.HTTP_201_CREATED)
 def create_host_group(
     payload: HostGroupCreate,
+    _current_user = Depends(get_current_user),
     service: HostService = Depends(get_host_service),
 ) -> HostGroupRead:
     """创建主机组。"""
@@ -49,6 +51,7 @@ def get_host_group(group_id: int, service: HostService = Depends(get_host_servic
 def update_host_group(
     group_id: int,
     payload: HostGroupUpdate,
+    _current_user = Depends(get_current_user),
     service: HostService = Depends(get_host_service),
 ) -> HostGroupRead:
     """更新主机组。"""
@@ -59,7 +62,11 @@ def update_host_group(
 
 
 @router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_host_group(group_id: int, service: HostService = Depends(get_host_service)) -> Response:
+def delete_host_group(
+    group_id: int,
+    _current_user = Depends(get_current_user),
+    service: HostService = Depends(get_host_service),
+) -> Response:
     """删除主机组。"""
     group = service.get_group(group_id)
     if group is None:
@@ -72,6 +79,7 @@ def delete_host_group(group_id: int, service: HostService = Depends(get_host_ser
 def add_host_to_group(
     group_id: int,
     payload: HostGroupMemberCreate,
+    _current_user = Depends(get_current_user),
     service: HostService = Depends(get_host_service),
 ) -> HostGroupRead:
     """向主机组添加主机。"""
@@ -89,6 +97,7 @@ def add_host_to_group(
 def remove_host_from_group(
     group_id: int,
     host_id: int,
+    _current_user = Depends(get_current_user),
     service: HostService = Depends(get_host_service),
 ) -> Response:
     """从主机组移除主机。"""

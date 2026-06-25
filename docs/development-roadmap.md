@@ -95,6 +95,64 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 - Add focused tests for scheduler registration, callback behavior, and cron/interval handling.
 - Add deployment notes for secrets, default admin password, Redis reachability, SQLite persistence, and SSH key mounts.
 
+## AI-assisted Self-growing Operation Modules
+
+This direction extends Astralith from a lightweight automated operations platform into an AI-assisted platform that can turn repeated incident experience into reviewable and reusable built-in operation module proposals.
+
+The agent helps with requirement analysis, incident summarization, runbook generation, Ansible task draft generation, risk notes, test-plan generation, and documentation. Human review and platform-side validation remain mandatory before a proposal can become an implemented operation module.
+
+### Design Principles
+
+- The agent assists module creation; it does not directly enable generated modules.
+- All remote operations continue to go through Ansible Runner and controlled built-in operation modules.
+- Generated proposals must be traceable back to source task results, logs, and reviewer decisions.
+- Human review is required before a proposal can be marked as implemented.
+- Each proposal should include risk notes, a test plan, and rollback notes.
+
+## v0.5.0 — AI Incident Analysis MVP
+
+Goal: analyze task execution results and generate structured Chinese incident reports.
+
+- Add an AI analysis service boundary.
+- Add configuration for the LLM provider, model name, timeout, and feature toggle.
+- Generate analysis from task status, stdout, stderr, and raw Ansible event data.
+- Persist AI analysis results in SQLite.
+- Expose an API such as `POST /api/v1/tasks/{task_id}/ai-analysis`.
+- Display the generated incident report in the task detail or task log view.
+- Keep original task output visible for manual verification.
+
+## v0.6.0 — Runbook and Operation Module Proposal
+
+Goal: turn incident analysis into reviewable operation module proposals.
+
+- Add an `operation_module_proposals` table.
+- Store proposal title, source task, problem summary, proposed module key, proposed task key, risk level, parameter schema, runbook, Ansible draft, test plan, status, and review comment.
+- Support proposal statuses: `draft`, `reviewing`, `approved`, `rejected`, and `implemented`.
+- Generate proposal drafts from failed task results or AI analysis records.
+- Add a proposal list and proposal detail page.
+
+## v0.7.0 — Validation and Human Review
+
+Goal: introduce a validation and review workflow before a generated proposal can become an implemented module candidate.
+
+- Add proposal validation records.
+- Validate parameter schema and required fields.
+- Prefer Ansible built-in modules over broad command text in generated drafts.
+- Assign or update risk levels based on action type.
+- Record validation results and reviewer decisions.
+- Add approve and reject APIs with review comments.
+- Display validation status, warnings, and review history in the frontend.
+
+## v0.8.0 — Controlled Module Materialization
+
+Goal: convert approved proposals into controlled built-in module drafts or module improvement artifacts.
+
+- Define a conversion path from approved proposal to operation module metadata.
+- Export approved proposals as built-in module drafts.
+- Generate module documentation, example parameters, test notes, and rollback notes.
+- Keep generated drafts reviewable before they are merged into the actual module registry.
+- Optional: generate a pull request draft instead of writing directly to the default branch.
+
 ## Quality Rules
 
 - Code comments and docstrings are Chinese.
@@ -102,3 +160,4 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 - Backend tests run with `uv run pytest`.
 - Frontend build runs with `pnpm --dir frontend build`.
 - Each release should keep the project lightweight and thesis-friendly.
+- AI-generated operation module proposals must include risk notes, test plans, and human review records before implementation.

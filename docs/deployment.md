@@ -53,5 +53,9 @@ Redis is required for Celery. SQLite is stored as a local file for the first ver
 ## Security Notes
 
 - Change `ASTRALITH_SECRET_KEY` before production-like deployment.
+- Change the default local admin password before any shared demonstration or production-like deployment.
+- Ensure the backend and Celery worker can both reach the same Redis broker URL.
+- Persist the SQLite database file on a durable volume when using Docker Compose.
 - Do not mount private SSH keys into containers unless the deployment path is explicitly designed and reviewed.
+- If SSH keys are mounted, mount only administrator-controlled key paths as read-only and never expose key content through API responses or logs.
 - Keep `.env` files out of version control.

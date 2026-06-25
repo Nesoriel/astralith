@@ -10,7 +10,7 @@ Graduation project title:
 
 ## Current Status
 
-v0.3.0 provides a lightweight authenticated demonstration loop:
+v0.4.0 provides a lightweight authenticated and scheduled execution loop:
 
 - Local admin login with JWT authentication and `/api/v1/auth/me`.
 - Frontend login page, token storage, route guard, and logout action.
@@ -20,9 +20,9 @@ v0.3.0 provides a lightweight authenticated demonstration loop:
 - Celery-dispatched task execution through the service boundary.
 - Ansible inventory and playbook generation for controlled built-in tasks.
 - SQLite-backed per-host task results with stdout, stderr, and raw event data.
-- Scheduled job records with enable, disable, and manual trigger actions.
+- Scheduled job records with enable, disable, manual trigger, APScheduler registration, and `next_run_at` display.
 - Vue 3 task log display with Simplified Chinese and English i18n.
-- Clean test/build output for the current v0.3.x toolchain.
+- Clean test/build output for the current v0.4.x toolchain.
 
 The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 
@@ -65,6 +65,7 @@ Log in
   -> select hosts or host groups
   -> choose a built-in operation task
   -> create an execution task
+  -> create a scheduled inspection when needed
   -> store status and logs in SQLite
   -> inspect results in the frontend
 ```

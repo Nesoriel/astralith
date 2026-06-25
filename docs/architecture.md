@@ -26,7 +26,7 @@ FastAPI API
 - Service modules contain business logic.
 - Celery executes long-running operations asynchronously.
 - Ansible Runner is the only remote execution engine.
-- APScheduler only triggers scheduled jobs and must not execute remote operations directly.
+- APScheduler registers enabled scheduled jobs and triggers normal task creation.
 - Built-in operation modules describe controlled operations such as system inspection and service management.
 - Frontend i18n keeps user-facing labels available in Simplified Chinese and English.
 

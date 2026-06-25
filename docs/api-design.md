@@ -2,7 +2,7 @@
 
 All API routes should use the `/api/v1` prefix.
 
-## v0.3.0 Endpoints
+## v0.4.0 Endpoints
 
 ```text
 GET    /health

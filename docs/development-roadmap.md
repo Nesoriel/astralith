@@ -87,10 +87,13 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 
 ## v0.4.0 — Scheduled Execution and Operational Hardening
 
-- Wire APScheduler persistence to scheduled jobs.
-- Trigger Celery execution from scheduler events.
-- Add better validation and error messages.
-- Add deployment hardening notes.
+- Register enabled scheduled jobs with APScheduler during app startup and job create/update/enable/disable/delete operations.
+- Trigger normal task creation from APScheduler events, then dispatch execution through Celery.
+- Persist `next_run_at` for scheduled jobs when APScheduler provides the next run time.
+- Support interval schedules and five-field cron expressions.
+- Guard disabled or deleted jobs from stale scheduler callbacks.
+- Add focused tests for scheduler registration, callback behavior, and cron/interval handling.
+- Add deployment notes for secrets, default admin password, Redis reachability, SQLite persistence, and SSH key mounts.
 
 ## Quality Rules
 

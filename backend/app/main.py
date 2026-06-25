@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from backend.app.api.router import api_router
 from backend.app.core.config import settings
 from backend.app.core.database import init_db
+from backend.app.scheduler.scheduler import start_scheduler, stop_scheduler
 
 
 @asynccontextmanager
@@ -17,7 +18,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     _ = app
     init_db()
-    yield
+    start_scheduler()
+    try:
+        yield
+    finally:
+        stop_scheduler()
 
 
 def create_app() -> FastAPI:

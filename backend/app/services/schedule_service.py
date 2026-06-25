@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.app.models.scheduled_job import ScheduledJob
+from backend.app.scheduler.scheduler import build_scheduler_job_id, remove_scheduler_job, sync_scheduler_job
 from backend.app.schemas.scheduled_job import (
     ScheduleType,
     ScheduledJobCreate,
@@ -49,7 +50,7 @@ class ScheduleService:
         self.db.add(job)
         self.db.commit()
         self.db.refresh(job)
-        return job
+        return sync_scheduler_job(self.db, job)
 
     def update_job(self, job: ScheduledJob, payload: ScheduledJobUpdate) -> ScheduledJob:
         """更新定时任务配置。"""
@@ -66,10 +67,11 @@ class ScheduleService:
         job.enabled = payload.enabled
         self.db.commit()
         self.db.refresh(job)
-        return job
+        return sync_scheduler_job(self.db, job)
 
     def delete_job(self, job: ScheduledJob) -> None:
         """删除定时任务配置。"""
+        remove_scheduler_job(build_scheduler_job_id(job.id))
         self.db.delete(job)
         self.db.commit()
 
@@ -78,16 +80,17 @@ class ScheduleService:
         job.enabled = enabled
         self.db.commit()
         self.db.refresh(job)
-        return job
+        return sync_scheduler_job(self.db, job)
 
-    def trigger_scheduled_job(self, job: ScheduledJob) -> int:
-        """手动触发定时任务，创建任务并投递执行队列。"""
+    def trigger_scheduled_job(self, job: ScheduledJob, trigger_source: str = "manual") -> int:
+        """触发定时任务，创建任务并投递执行队列。"""
         target_type = job.target_type
         if target_type not in ("hosts", "host_groups"):
             raise ValueError("Invalid scheduled job target type")
         typed_target_type = cast(TargetType, target_type)
+        task_name_suffix = "manual trigger" if trigger_source == "manual" else "scheduled trigger"
         payload = TaskCreate(
-            name=f"{job.name} manual trigger",
+            name=f"{job.name} {task_name_suffix}",
             module_key=job.module_key,
             module_task_key=job.module_task_key,
             target_type=typed_target_type,

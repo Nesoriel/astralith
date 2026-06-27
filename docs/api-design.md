@@ -7,6 +7,7 @@ All API routes should use the `/api/v1` prefix.
 ```text
 GET    /health
 GET    /api/v1/status
+GET    /api/v1/dashboard/summary
 
 POST   /api/v1/auth/login
 GET    /api/v1/auth/me

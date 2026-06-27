@@ -28,6 +28,7 @@ v1.0.0 is the first formal release. It provides a lightweight authenticated oper
 - Human-approved Docker Compose Apply Plan execution through the Ansible service boundary with persisted apply runs and rollback metadata.
 - AI GitOps change and runbook proposals with human approve/reject review records.
 - Self-growing operation module proposals with dangerous-command detection, validation status, review comments, and exportable module drafts.
+- Dashboard Summary API and metric cards for operations execution, GitOps reconciliation, and AI/proposal review.
 - Vue 3 task log display with Simplified Chinese and English i18n.
 - Clean test/build output for the current v1.0.x toolchain.
 

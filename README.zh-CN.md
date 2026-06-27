@@ -28,6 +28,7 @@ v1.0.0 是第一个正式版本，提供带登录认证、定时执行、Evidenc
 - 支持人工审批后的 Docker Compose Apply Plan 经由 Ansible 服务边界执行，并保存 Apply Run 与回滚元数据。
 - 支持 AI GitOps 变更与 Runbook 提案，并保存人工批准/拒绝评审记录。
 - 支持自增长运维模块提案，包含危险命令检测、校验状态、评审意见与可导出模块草案。
+- 支持 Dashboard Summary API 与运维执行、GitOps 对账、AI/Proposal 审核指标卡片。
 - Vue 3 任务日志展示，并支持简体中文与英文 i18n。
 - 针对当前 v1.0.x 工具链保持干净的测试与构建输出。
 

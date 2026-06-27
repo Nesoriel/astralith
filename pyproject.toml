@@ -1,6 +1,6 @@
 [project]
 name = "astralith"
-version = "1.0.0"
+version = "1.0.1"
 description = "Lightweight FastAPI and Ansible automated operations platform."
 readme = "README.md"
 requires-python = ">=3.12"

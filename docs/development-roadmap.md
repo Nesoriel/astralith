@@ -164,6 +164,42 @@ Goal: turn incident experience into reviewable, verifiable, reusable controlled 
 - Require human review before a proposal can be marked implemented.
 - Export approved proposals as reviewable module drafts, documentation, tests, examples, and rollback notes.
 
+## v1.0.x — Frontend Workbench Productization
+
+Goal: turn the v1.0.0 backend capabilities into clear, workflow-oriented frontend workbenches so the platform feels like an automated operations console rather than separate CRUD pages.
+
+### v1.0.1 — Dashboard Summary Workbench
+
+- Add `GET /api/v1/dashboard/summary` as a lightweight aggregation API.
+- Show real counts for hosts, host groups, operation modules, module tasks, tasks, scheduled jobs, GitOps repositories, diffs, pending apply plans, blocked policy results, AI analyses, AI proposals, and operation module proposals.
+- Group cards into operations execution, GitOps reconciliation, AI/proposal review, and safety/policy sections.
+- Cards should guide the next click into the relevant workbench.
+
+### v1.0.2 — Operation Module Workbench
+
+- Replace the simple module-card page with a module workbench.
+- Show module details, task details, parameter schemas, example parameters, playbook preview, quick task creation, and recent execution history.
+- Make `check_disk` and `service_status` executable from the module page without forcing the user to switch to the generic Tasks page first.
+
+### v1.0.3 — Task Incident Flow
+
+- Upgrade the task log drawer/page into an incident workflow.
+- Present task metadata, per-host results, stdout/stderr/raw events, Evidence Pack, AI Incident Analysis, and proposal actions in one flow.
+- Let failed tasks lead naturally to AI Proposal review rather than stopping at log inspection.
+
+### v1.0.4 — GitOps Workbench
+
+- Consolidate GitOps repository sync, Desired Resources, Actual Resources, Diff Center, Apply Plans, Policy Results, and Apply Runs into a clearer reconciliation workbench.
+- Use tabs or step indicators to express `sync -> desired -> actual -> diff -> plan -> policy -> approve -> execute -> apply run`.
+- Keep the first implementation lightweight by reusing existing APIs before adding aggregation endpoints.
+
+### v1.0.5 — Proposal Review Workbench
+
+- Turn AI Proposal and Operation Module Proposal pages into a review center.
+- Add status filters for draft, approved, rejected, implemented, and blocked proposals.
+- Show source, risk, content preview, validation output, test plan, rollback notes, review comments, and export actions.
+- Allow approved AI Proposals to generate Operation Module Proposals from the frontend.
+
 ## Quality Rules
 
 - Code comments and docstrings are Chinese.

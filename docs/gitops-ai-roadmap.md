@@ -314,6 +314,30 @@ Acceptance:
 - Dangerous commands or missing validation are flagged as high-risk or validation failures.
 - Approved proposals can be exported as reviewable module drafts.
 
+## Frontend Workbench Productization — v1.0.x
+
+GitHub issue #3 shifts the immediate 1.0.x focus from adding more backend primitives to making existing capabilities visible as product workflows.
+
+```text
+v1.0.1 Dashboard Summary Workbench
+  -> real platform metrics and navigation cards
+v1.0.2 Operation Module Workbench
+  -> module details, parameter schemas, playbook preview, quick execution
+v1.0.3 Task Incident Flow
+  -> logs, Evidence Pack, AI analysis, and proposal actions in one flow
+v1.0.4 GitOps Workbench
+  -> sync, desired, actual, diff, plan, policy, approve, execute, apply run
+v1.0.5 Proposal Review Workbench
+  -> AI and module proposals with filters, review state, validation, export
+```
+
+Principles:
+
+1. Reuse existing APIs first; add small aggregation endpoints only where they clearly improve the UX.
+2. Each page should show the user's next operation, not just database rows.
+3. Workbench pages should make the graduation defense flow visually obvious.
+4. Do not introduce complex RBAC, Kubernetes UI, plugin marketplaces, or large enterprise dashboards.
+
 ## Database Extension Draft
 
 ```text

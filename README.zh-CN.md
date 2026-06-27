@@ -43,7 +43,7 @@ v1.0.0 是第一个正式版本，提供带登录认证、定时执行、Evidenc
 - AI 基于结构化 Evidence Pack 分析故障，并生成可审核的故障报告、Runbook、GitOps 变更提案与运维模块提案。
 - AI 不直接执行基础设施变更，也不能绕过受控的 Ansible Runner / Docker Compose 执行链路。
 
-版本计划见 `docs/development-roadmap.md` 与 `docs/gitops-ai-roadmap.md`。
+版本计划见 `docs/development-roadmap.md` 与 `docs/gitops-ai-roadmap.md`。v1.0.x 系列将按 GitHub issue #3 聚焦前端工作台产品化：Dashboard 指标化、运维模块工作台、任务故障闭环、GitOps 对账工作台与提案审核工作台。
 
 ## 快速开始
 

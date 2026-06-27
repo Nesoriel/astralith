@@ -43,7 +43,7 @@ After the v0.4 lightweight execution loop, Astralith's roadmap evolves toward an
 - AI analyzes structured Evidence Packs and creates reviewable incident reports, runbooks, GitOps change proposals, and operation module proposals.
 - AI does not directly execute infrastructure changes or bypass controlled Ansible Runner / Docker Compose execution.
 
-See `docs/development-roadmap.md` and `docs/gitops-ai-roadmap.md` for the version plan.
+See `docs/development-roadmap.md` and `docs/gitops-ai-roadmap.md` for the version plan. The v1.0.x line now focuses on frontend workbench productization from GitHub issue #3: Dashboard metrics, Operation Module Workbench, Task Incident Flow, GitOps Workbench, and Proposal Review Workbench.
 
 ## Quick Start
 

@@ -93,3 +93,36 @@ def test_ensure_sqlite_schema_adds_v050_ai_analysis_tables(tmp_path: Path) -> No
 
     assert "evidence_packs" in table_names
     assert "ai_analysis_results" in table_names
+
+
+def test_ensure_sqlite_schema_adds_v060_gitops_tables(tmp_path: Path) -> None:
+    """v0.6.0 启动时应为旧开发库补齐 GitOps 同步相关表。"""
+    db_path = tmp_path / "old-astralith.db"
+    connection = sqlite3.connect(db_path)
+    try:
+        connection.execute(
+            """
+            CREATE TABLE users (
+                id INTEGER NOT NULL PRIMARY KEY,
+                username VARCHAR(64) NOT NULL,
+                hashed_password VARCHAR(255) NOT NULL,
+                role VARCHAR(32) NOT NULL,
+                is_active BOOLEAN NOT NULL,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL
+            )
+            """
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    engine = create_engine(f"sqlite:///{db_path}", future=True)
+    ensure_sqlite_schema(engine)
+
+    with engine.connect() as migrated:
+        table_names = {row[0] for row in migrated.execute(text("SELECT name FROM sqlite_master WHERE type='table'"))}
+
+    assert "gitops_repositories" in table_names
+    assert "gitops_sync_runs" in table_names
+    assert "desired_resources" in table_names

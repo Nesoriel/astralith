@@ -10,7 +10,7 @@ Graduation project title:
 
 ## Current Status
 
-v0.5.0 provides a lightweight authenticated and scheduled execution loop plus Evidence Pack based AI incident analysis:
+v0.6.0 provides a lightweight authenticated operations loop, Evidence Pack based AI incident analysis, and GitOps desired-state repository sync:
 
 - Local admin login with JWT authentication and `/api/v1/auth/me`.
 - Frontend login page, token storage, route guard, and logout action.
@@ -23,8 +23,9 @@ v0.5.0 provides a lightweight authenticated and scheduled execution loop plus Ev
 - Scheduled job records with enable, disable, manual trigger, APScheduler registration, and `next_run_at` display.
 - Evidence Packs built from task stdout, stderr, and raw Ansible events.
 - Persisted AI incident analysis reports with evidence references and human-review warnings.
+- GitOps repository configuration, manual sync runs, latest commit tracking, and Desired Resource parsing for `hosts`, `stacks`, `modules`, and `policies`.
 - Vue 3 task log display with Simplified Chinese and English i18n.
-- Clean test/build output for the current v0.5.x toolchain.
+- Clean test/build output for the current v0.6.x toolchain.
 
 The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 

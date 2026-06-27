@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.app.api.routes import auth, health, host_groups, hosts, operation_modules, scheduled_jobs, tasks
+from backend.app.api.routes import auth, gitops, health, host_groups, hosts, operation_modules, scheduled_jobs, tasks
 
 api_router = APIRouter()
 
@@ -18,3 +18,5 @@ api_router.include_router(host_groups.router, prefix="/host-groups", tags=["host
 api_router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 # /api/v1/scheduled-jobs：管理定时巡检任务。
 api_router.include_router(scheduled_jobs.router, prefix="/scheduled-jobs", tags=["scheduled-jobs"])
+# /api/v1/gitops-repositories：管理 GitOps 期望状态仓库与同步记录。
+api_router.include_router(gitops.router, prefix="/gitops-repositories", tags=["gitops"])

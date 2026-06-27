@@ -14,6 +14,7 @@ export const router = createRouter({
     { path: '/operation-modules', component: () => import('../views/OperationModules.vue') },
     { path: '/tasks', component: () => import('../views/Tasks.vue') },
     { path: '/scheduled-jobs', component: () => import('../views/ScheduledJobs.vue') },
+    { path: '/gitops-repositories', component: () => import('../views/GitOpsRepositories.vue') },
   ],
 })
 

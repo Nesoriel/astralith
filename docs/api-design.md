@@ -2,7 +2,7 @@
 
 All API routes should use the `/api/v1` prefix.
 
-## v0.5.0 Endpoints
+## v0.6.0 Endpoints
 
 ```text
 GET    /health
@@ -43,14 +43,23 @@ DELETE /api/v1/scheduled-jobs/{job_id}
 POST   /api/v1/scheduled-jobs/{job_id}/enable
 POST   /api/v1/scheduled-jobs/{job_id}/disable
 POST   /api/v1/scheduled-jobs/{job_id}/trigger
+
+GET    /api/v1/gitops-repositories
+POST   /api/v1/gitops-repositories
+GET    /api/v1/gitops-repositories/{repository_id}
+PUT    /api/v1/gitops-repositories/{repository_id}
+POST   /api/v1/gitops-repositories/{repository_id}/sync
+GET    /api/v1/gitops-repositories/{repository_id}/sync-runs
+GET    /api/v1/gitops-repositories/{repository_id}/desired-resources
 ```
 
 ## Authentication Rules
 
 - `POST /api/v1/auth/login` returns a Bearer JWT for active local users.
 - `GET /api/v1/auth/me` requires a valid Bearer JWT.
-- Write operations such as creating/updating/deleting hosts, groups, tasks, and scheduled jobs require a valid Bearer JWT.
+- Write operations such as creating/updating/deleting hosts, groups, tasks, scheduled jobs, and GitOps repositories require a valid Bearer JWT.
 - `POST /api/v1/tasks/{task_id}/ai-analysis` requires a valid Bearer JWT because it creates persisted analysis records.
+- `POST /api/v1/gitops-repositories/{repository_id}/sync` requires a valid Bearer JWT because it writes sync logs and Desired Resources.
 - Read operations remain available for the lightweight dashboard and graduation demonstration flow.
 
 ## AI Analysis Rules
@@ -59,6 +68,13 @@ POST   /api/v1/scheduled-jobs/{job_id}/trigger
 - The service first persists an Evidence Pack, then stores an AI analysis result linked to that evidence.
 - `GET /api/v1/tasks/{task_id}/logs` returns existing AI analyses beside task logs so the frontend can display evidence-based diagnosis reports.
 - v0.5.0 uses a deterministic local analysis boundary suitable for tests and graduation demonstration. A real model provider can be added later only behind the same Evidence Pack and human-review boundary.
+
+## GitOps Sync Rules
+
+- v0.6.0 GitOps sync only clones/fetches a desired-state repository and parses files. It does not apply changes to managed hosts.
+- Supported desired resource paths are `hosts/*.yaml`, `stacks/*/stack.yaml`, `modules/*/module.yaml`, and `policies/*.yaml`.
+- Sync runs persist status, stdout/stderr, commit SHA, timestamps, and parsed Desired Resources.
+- Parsed resource content is stored as JSON for display and later diff/plan work.
 
 ## Deferred Endpoints
 

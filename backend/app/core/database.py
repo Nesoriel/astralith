@@ -62,6 +62,16 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
         return
 
     inspector = inspect(database_engine)
+    # v0.6.0 新增 GitOps 同步表；旧 SQLite 开发库启动时需要补齐这些表。
+    from backend.app.models.gitops import DesiredResource, GitOpsRepository, GitOpsSyncRun
+
+    gitops_tables = [
+        cast(Table, GitOpsRepository.__table__),
+        cast(Table, GitOpsSyncRun.__table__),
+        cast(Table, DesiredResource.__table__),
+    ]
+    Base.metadata.create_all(bind=database_engine, tables=gitops_tables)
+
     if not inspector.has_table("tasks"):
         return
 

@@ -148,3 +148,39 @@ class GitOpsApplyRunRead(BaseModel):
     rollback_json: str
     started_at: datetime
     finished_at: datetime | None = None
+
+
+class AiProposalCreate(BaseModel):
+    """创建 AI 提案的请求体。"""
+
+    proposal_type: str = Field(min_length=1, max_length=50)
+    title: str = Field(min_length=1, max_length=200)
+    summary: str
+    content: dict[str, Any]
+    risk_level: str = Field(default="medium", max_length=32)
+    source_type: str | None = None
+    source_id: int | None = None
+
+
+class AiProposalReview(BaseModel):
+    """审批或拒绝 AI 提案的请求体。"""
+
+    review_comment: str = Field(default="", max_length=1000)
+
+
+class AiProposalRead(BaseModel):
+    """返回给前端展示的 AI 提案。"""
+
+    id: int
+    proposal_type: str
+    title: str
+    summary: str
+    content: dict[str, Any]
+    risk_level: str
+    status: str
+    source_type: str | None = None
+    source_id: int | None = None
+    review_comment: str | None = None
+    reviewed_by: int | None = None
+    reviewed_at: datetime | None = None
+    created_at: datetime

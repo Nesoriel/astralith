@@ -60,6 +60,7 @@ watch(() => route.fullPath, loadCurrentUser, { immediate: true })
         <el-menu-item index="/scheduled-jobs">{{ t('nav.scheduledJobs') }}</el-menu-item>
         <el-menu-item index="/gitops-repositories">{{ t('nav.gitops') }}</el-menu-item>
         <el-menu-item index="/gitops-diff">{{ t('nav.gitopsDiff') }}</el-menu-item>
+        <el-menu-item index="/ai-proposals">{{ t('nav.aiProposals') }}</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>

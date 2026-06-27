@@ -8,6 +8,7 @@ from backend.app.schemas.gitops import (
     ActualResourceUpsert,
     ApplyPlanRead,
     DesiredResourceRead,
+    AiProposalRead,
     GitOpsApplyRunRead,
     GitOpsRepositoryCreate,
     GitOpsRepositoryRead,
@@ -16,6 +17,7 @@ from backend.app.schemas.gitops import (
     PolicyResultRead,
     ResourceDiffRead,
 )
+from backend.app.services.ai_proposal_service import AiProposalService
 from backend.app.services.ansible_service import AnsibleService
 from backend.app.services.gitops_apply_service import GitOpsApplyService
 from backend.app.services.gitops_diff_service import GitOpsDiffService
@@ -39,6 +41,11 @@ def get_gitops_diff_service(db: Session = Depends(get_db)) -> GitOpsDiffService:
 def get_gitops_apply_service(db: Session = Depends(get_db)) -> GitOpsApplyService:
     """构造 GitOps Apply 服务。"""
     return GitOpsApplyService(db, ansible_service=AnsibleService())
+
+
+def get_ai_proposal_service(db: Session = Depends(get_db)) -> AiProposalService:
+    """构造 AI GitOps 提案服务。"""
+    return AiProposalService(db)
 
 
 @router.get("", response_model=list[GitOpsRepositoryRead])
@@ -210,3 +217,16 @@ def list_apply_runs(
 ) -> list[GitOpsApplyRunRead]:
     """查看 Docker Compose Apply 执行记录。"""
     return [GitOpsApplyRunRead.model_validate(run) for run in service.list_apply_runs(repository_id)]
+
+
+@router.post("/apply-plans/{plan_id}/ai-proposal", response_model=AiProposalRead, status_code=status.HTTP_201_CREATED)
+def generate_ai_proposal_from_plan(
+    plan_id: int,
+    _current_user: User = Depends(get_current_user),
+    service: AiProposalService = Depends(get_ai_proposal_service),
+) -> AiProposalRead:
+    """从 Apply Plan 生成 AI GitOps Change Proposal。"""
+    try:
+        return service.to_schema(service.generate_from_apply_plan(plan_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

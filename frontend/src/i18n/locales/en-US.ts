@@ -11,6 +11,7 @@ export default {
     scheduledJobs: 'Scheduled Jobs',
     gitops: 'GitOps Repositories',
     gitopsDiff: 'Diff / Plan',
+    aiProposals: 'AI Proposals',
   },
   auth: {
     title: 'Log in to Astralith',
@@ -32,6 +33,8 @@ export default {
     save: 'Save',
     approve: 'Approve',
     execute: 'Execute',
+    reject: 'Reject',
+    propose: 'Generate Proposal',
     test: 'Test',
     trigger: 'Trigger',
     enable: 'Enable',
@@ -89,6 +92,8 @@ export default {
     message: 'Message',
     stackName: 'Stack Name',
     targetPath: 'Target Path',
+    title: 'Title',
+    proposalType: 'Proposal Type',
   },
   targetTypes: {
     hosts: 'Hosts',
@@ -99,6 +104,7 @@ export default {
     taskName: 'Check Disk',
     scheduledJobName: 'Daily Disk Check',
     gitOpsRepositoryName: 'Demo Desired State Repository',
+    aiProposalTitle: 'Demo Runbook Proposal',
   },
   dashboard: {
     title: 'Astralith Dashboard',
@@ -163,6 +169,19 @@ export default {
       planApproved: 'Apply plan approved',
       planExecuted: 'Apply plan executed',
       applyRuns: 'Apply Runs',
+      proposalGenerated: 'AI proposal generated',
+    },
+    aiProposals: {
+      title: 'AI Proposal Review',
+      description: 'View, create, approve, or reject AI-generated GitOps change and runbook proposals.',
+      createTitle: 'Create Proposal Draft',
+      proposals: 'Proposals',
+      reviewComment: 'Review comment',
+      approved: 'Proposal approved',
+      rejected: 'Proposal rejected',
+      defaultSummary: 'Controlled proposal draft for demonstration.',
+      defaultApproveComment: 'Approved for the next human implementation review.',
+      defaultRejectComment: 'Rejected; risk notes need to be revised.',
     },
   },
 } as const

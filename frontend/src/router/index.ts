@@ -16,6 +16,7 @@ export const router = createRouter({
     { path: '/scheduled-jobs', component: () => import('../views/ScheduledJobs.vue') },
     { path: '/gitops-repositories', component: () => import('../views/GitOpsRepositories.vue') },
     { path: '/gitops-diff', component: () => import('../views/GitOpsDiffCenter.vue') },
+    { path: '/ai-proposals', component: () => import('../views/AiProposals.vue') },
   ],
 })
 

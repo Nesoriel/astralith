@@ -65,6 +65,7 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
     # v0.6.0 新增 GitOps 同步表；旧 SQLite 开发库启动时需要补齐这些表。
     from backend.app.models.gitops import (
         ActualResource,
+        AiProposal,
         ApplyPlan,
         DesiredResource,
         GitOpsApplyRun,
@@ -79,6 +80,7 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
         cast(Table, GitOpsSyncRun.__table__),
         cast(Table, DesiredResource.__table__),
         cast(Table, ActualResource.__table__),
+        cast(Table, AiProposal.__table__),
         cast(Table, ResourceDiff.__table__),
         cast(Table, ApplyPlan.__table__),
         cast(Table, PolicyResult.__table__),

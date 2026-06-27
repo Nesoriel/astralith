@@ -11,6 +11,7 @@ export default {
     scheduledJobs: '定时任务',
     gitops: 'GitOps 仓库',
     gitopsDiff: 'Diff / Plan',
+    aiProposals: 'AI 提案',
   },
   auth: {
     title: '登录 Astralith',
@@ -32,6 +33,8 @@ export default {
     save: '保存',
     approve: '审批',
     execute: '执行',
+    reject: '拒绝',
+    propose: '生成提案',
     test: '测试',
     trigger: '触发',
     enable: '启用',
@@ -89,6 +92,8 @@ export default {
     message: '消息',
     stackName: 'Stack 名称',
     targetPath: '目标路径',
+    title: '标题',
+    proposalType: '提案类型',
   },
   targetTypes: {
     hosts: '主机',
@@ -99,6 +104,7 @@ export default {
     taskName: '检查磁盘',
     scheduledJobName: '每日磁盘巡检',
     gitOpsRepositoryName: '演示期望状态仓库',
+    aiProposalTitle: '演示 Runbook 提案',
   },
   dashboard: {
     title: 'Astralith 仪表盘',
@@ -163,6 +169,19 @@ export default {
       planApproved: 'Apply Plan 已审批',
       planExecuted: 'Apply Plan 已执行',
       applyRuns: 'Apply Runs',
+      proposalGenerated: 'AI 提案已生成',
+    },
+    aiProposals: {
+      title: 'AI 提案评审',
+      description: '查看、创建、批准或拒绝 AI 生成的 GitOps 变更与 Runbook 提案。',
+      createTitle: '创建提案草稿',
+      proposals: '提案列表',
+      reviewComment: '评审意见',
+      approved: '提案已批准',
+      rejected: '提案已拒绝',
+      defaultSummary: '用于演示的受控提案草稿。',
+      defaultApproveComment: '批准进入后续人工实施评审。',
+      defaultRejectComment: '拒绝该提案，需要重新整理风险。',
     },
   },
 } as const

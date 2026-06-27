@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
+import { generateProposalFromApplyPlan } from '../api/aiProposals'
 import {
   approveApplyPlan,
   executeApplyPlan,
@@ -117,6 +118,11 @@ async function executePlan(plan: ApplyPlan): Promise<void> {
   if (selectedRepositoryId.value !== null) await loadDiffData(selectedRepositoryId.value)
 }
 
+async function generateProposal(plan: ApplyPlan): Promise<void> {
+  await generateProposalFromApplyPlan(plan.id)
+  ElMessage.success(t('pages.gitops.proposalGenerated'))
+}
+
 function formatJson(value: Record<string, unknown> | null | undefined): string {
   return value ? JSON.stringify(value, null, 2) : '-'
 }
@@ -191,10 +197,11 @@ onMounted(loadData)
             </ol>
           </template>
         </el-table-column>
-        <el-table-column :label="t('common.actions')" width="180">
+        <el-table-column :label="t('common.actions')" width="260">
           <template #default="scope">
             <el-button size="small" @click="approvePlan(scope.row)">{{ t('common.approve') }}</el-button>
             <el-button size="small" type="primary" @click="executePlan(scope.row)">{{ t('common.execute') }}</el-button>
+            <el-button size="small" @click="generateProposal(scope.row)">{{ t('common.propose') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -2,7 +2,7 @@
 
 All API routes should use the `/api/v1` prefix.
 
-## v0.8.0 Endpoints
+## v0.9.0 Endpoints
 
 ```text
 GET    /health
@@ -60,6 +60,12 @@ GET    /api/v1/gitops-repositories/{repository_id}/policy-results
 POST   /api/v1/gitops-repositories/apply-plans/{plan_id}/approve
 POST   /api/v1/gitops-repositories/apply-plans/{plan_id}/execute
 GET    /api/v1/gitops-repositories/{repository_id}/apply-runs
+POST   /api/v1/gitops-repositories/apply-plans/{plan_id}/ai-proposal
+
+GET    /api/v1/ai-proposals
+POST   /api/v1/ai-proposals
+POST   /api/v1/ai-proposals/{proposal_id}/approve
+POST   /api/v1/ai-proposals/{proposal_id}/reject
 ```
 
 ## Authentication Rules
@@ -71,6 +77,7 @@ GET    /api/v1/gitops-repositories/{repository_id}/apply-runs
 - `POST /api/v1/gitops-repositories/{repository_id}/sync` requires a valid Bearer JWT because it writes sync logs and Desired Resources.
 - `POST /api/v1/gitops-repositories/actual-resources` and `POST /api/v1/gitops-repositories/{repository_id}/diff` require a valid Bearer JWT because they write Actual Resources, diffs, plans, and policy results.
 - `POST /api/v1/gitops-repositories/apply-plans/{plan_id}/approve` and `/execute` require a valid Bearer JWT because they approve or execute controlled apply plans.
+- AI proposal create, generate, approve, and reject endpoints require a valid Bearer JWT because they write review records.
 - Read operations remain available for the lightweight dashboard and graduation demonstration flow.
 
 ## AI Analysis Rules
@@ -91,6 +98,7 @@ GET    /api/v1/gitops-repositories/{repository_id}/apply-runs
 - Policy Results are deterministic and can block plans, for example when a Docker Compose stack uses an image tagged `latest`.
 - v0.8.0 only executes approved and policy-passed Docker Compose stack Apply Plans.
 - Docker Compose apply runs go through the Ansible service boundary and persist stdout, stderr, raw events, target path, commit SHA, and rollback metadata.
+- v0.9.0 AI proposals are reviewable drafts for GitOps changes, runbooks, operation modules, or rollback plans; they never modify Git repositories or execute infrastructure directly.
 
 ## Deferred Endpoints
 

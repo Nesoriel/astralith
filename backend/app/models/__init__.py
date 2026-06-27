@@ -1,6 +1,7 @@
 from backend.app.models.host import Host, HostGroup, HostGroupMember
 from backend.app.models.gitops import (
     ActualResource,
+    AiProposal,
     ApplyPlan,
     DesiredResource,
     GitOpsApplyRun,
@@ -19,6 +20,7 @@ __all__ = [
     "HostGroup",
     "HostGroupMember",
     "ActualResource",
+    "AiProposal",
     "ApplyPlan",
     "DesiredResource",
     "GitOpsApplyRun",

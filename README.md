@@ -10,7 +10,7 @@ Graduation project title:
 
 ## Current Status
 
-v0.8.0 provides a lightweight authenticated operations loop, Evidence Pack based AI incident analysis, GitOps desired-state sync, Desired/Actual diff planning, and controlled Docker Compose Apply records:
+v0.9.0 provides a lightweight authenticated operations loop, Evidence Pack based AI incident analysis, GitOps desired-state sync, Desired/Actual diff planning, controlled Docker Compose Apply records, and AI GitOps change proposals:
 
 - Local admin login with JWT authentication and `/api/v1/auth/me`.
 - Frontend login page, token storage, route guard, and logout action.
@@ -26,8 +26,9 @@ v0.8.0 provides a lightweight authenticated operations loop, Evidence Pack based
 - GitOps repository configuration, manual sync runs, latest commit tracking, and Desired Resource parsing for `hosts`, `stacks`, `modules`, and `policies`.
 - Actual Resource upsert, Desired/Actual diff generation, Apply Plan creation, and deterministic policy validation.
 - Human-approved Docker Compose Apply Plan execution through the Ansible service boundary with persisted apply runs and rollback metadata.
+- AI GitOps change and runbook proposals with human approve/reject review records.
 - Vue 3 task log display with Simplified Chinese and English i18n.
-- Clean test/build output for the current v0.8.x toolchain.
+- Clean test/build output for the current v0.9.x toolchain.
 
 The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 

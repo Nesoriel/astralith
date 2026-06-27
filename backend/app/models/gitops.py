@@ -133,3 +133,23 @@ class GitOpsApplyRun(Base):
     rollback_json: Mapped[str] = mapped_column(Text, nullable=False)
     started_at: Mapped[datetime] = mapped_column(default=utc_now, nullable=False)
     finished_at: Mapped[datetime | None] = mapped_column()
+
+
+class AiProposal(Base):
+    """AI 生成的 GitOps 变更、Runbook 或回滚提案。"""
+
+    __tablename__ = "ai_proposals"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    proposal_type: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    content_json: Mapped[str] = mapped_column(Text, nullable=False)
+    risk_level: Mapped[str] = mapped_column(String(32), nullable=False, default="medium")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="draft", index=True)
+    source_type: Mapped[str | None] = mapped_column(String(50))
+    source_id: Mapped[int | None] = mapped_column()
+    review_comment: Mapped[str | None] = mapped_column(Text)
+    reviewed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    reviewed_at: Mapped[datetime | None] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(default=utc_now, nullable=False)

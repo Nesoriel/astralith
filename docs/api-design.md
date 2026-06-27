@@ -2,7 +2,7 @@
 
 All API routes should use the `/api/v1` prefix.
 
-## v0.9.0 Endpoints
+## v1.0.0 Endpoints
 
 ```text
 GET    /health
@@ -28,6 +28,13 @@ DELETE /api/v1/host-groups/{group_id}/hosts/{host_id}
 
 GET    /api/v1/operation-modules
 GET    /api/v1/operation-modules/{module_key}
+GET    /api/v1/operation-module-proposals
+POST   /api/v1/operation-module-proposals
+POST   /api/v1/operation-module-proposals/from-ai-proposals/{ai_proposal_id}
+POST   /api/v1/operation-module-proposals/{proposal_id}/approve
+POST   /api/v1/operation-module-proposals/{proposal_id}/reject
+POST   /api/v1/operation-module-proposals/{proposal_id}/implement
+GET    /api/v1/operation-module-proposals/{proposal_id}/export
 
 GET    /api/v1/tasks
 POST   /api/v1/tasks
@@ -78,6 +85,7 @@ POST   /api/v1/ai-proposals/{proposal_id}/reject
 - `POST /api/v1/gitops-repositories/actual-resources` and `POST /api/v1/gitops-repositories/{repository_id}/diff` require a valid Bearer JWT because they write Actual Resources, diffs, plans, and policy results.
 - `POST /api/v1/gitops-repositories/apply-plans/{plan_id}/approve` and `/execute` require a valid Bearer JWT because they approve or execute controlled apply plans.
 - AI proposal create, generate, approve, and reject endpoints require a valid Bearer JWT because they write review records.
+- Operation module proposal create, generate, approve, reject, and implement endpoints require a valid Bearer JWT because they write proposal and review state.
 - Read operations remain available for the lightweight dashboard and graduation demonstration flow.
 
 ## AI Analysis Rules
@@ -99,6 +107,7 @@ POST   /api/v1/ai-proposals/{proposal_id}/reject
 - v0.8.0 only executes approved and policy-passed Docker Compose stack Apply Plans.
 - Docker Compose apply runs go through the Ansible service boundary and persist stdout, stderr, raw events, target path, commit SHA, and rollback metadata.
 - v0.9.0 AI proposals are reviewable drafts for GitOps changes, runbooks, operation modules, or rollback plans; they never modify Git repositories or execute infrastructure directly.
+- v1.0.0 operation module proposals turn approved experience into reusable module drafts with dangerous-command detection, validation output, test plans, rollback notes, and human review state.
 
 ## Deferred Endpoints
 

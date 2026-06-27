@@ -12,6 +12,7 @@ export const router = createRouter({
     { path: '/hosts', component: () => import('../views/Hosts.vue') },
     { path: '/host-groups', component: () => import('../views/HostGroups.vue') },
     { path: '/operation-modules', component: () => import('../views/OperationModules.vue') },
+    { path: '/operation-module-proposals', component: () => import('../views/OperationModuleProposals.vue') },
     { path: '/tasks', component: () => import('../views/Tasks.vue') },
     { path: '/scheduled-jobs', component: () => import('../views/ScheduledJobs.vue') },
     { path: '/gitops-repositories', component: () => import('../views/GitOpsRepositories.vue') },

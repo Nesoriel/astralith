@@ -132,3 +132,4 @@ def test_ensure_sqlite_schema_adds_v060_gitops_tables(tmp_path: Path) -> None:
     assert "policy_results" in table_names
     assert "gitops_apply_runs" in table_names
     assert "ai_proposals" in table_names
+    assert "operation_module_proposals" in table_names

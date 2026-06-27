@@ -56,6 +56,7 @@ watch(() => route.fullPath, loadCurrentUser, { immediate: true })
         <el-menu-item index="/hosts">{{ t('nav.hosts') }}</el-menu-item>
         <el-menu-item index="/host-groups">{{ t('nav.hostGroups') }}</el-menu-item>
         <el-menu-item index="/operation-modules">{{ t('nav.operationModules') }}</el-menu-item>
+        <el-menu-item index="/operation-module-proposals">{{ t('nav.operationModuleProposals') }}</el-menu-item>
         <el-menu-item index="/tasks">{{ t('nav.tasks') }}</el-menu-item>
         <el-menu-item index="/scheduled-jobs">{{ t('nav.scheduledJobs') }}</el-menu-item>
         <el-menu-item index="/gitops-repositories">{{ t('nav.gitops') }}</el-menu-item>

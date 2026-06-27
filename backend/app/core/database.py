@@ -88,6 +88,11 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
     ]
     Base.metadata.create_all(bind=database_engine, tables=gitops_tables)
 
+    # v1.0.0 新增自增长运维模块提案表；旧库即使尚未创建 tasks 表也要补齐。
+    from backend.app.models.operation_module import OperationModuleProposal
+
+    Base.metadata.create_all(bind=database_engine, tables=[cast(Table, OperationModuleProposal.__table__)])
+
     if not inspector.has_table("tasks"):
         return
 
@@ -103,6 +108,7 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
 
     ai_analysis_tables = [cast(Table, EvidencePack.__table__), cast(Table, AiAnalysisResult.__table__)]
     Base.metadata.create_all(bind=database_engine, tables=ai_analysis_tables)
+
 
 
 def get_db() -> Generator[Session, None, None]:

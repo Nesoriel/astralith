@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.app.api.routes import ai_proposals, auth, gitops, health, host_groups, hosts, operation_modules, scheduled_jobs, tasks
+from backend.app.api.routes import ai_proposals, auth, gitops, health, host_groups, hosts, operation_module_proposals, operation_modules, scheduled_jobs, tasks
 
 api_router = APIRouter()
 
@@ -10,6 +10,8 @@ api_router.include_router(health.router, tags=["health"])
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 # /api/v1/operation-modules：列出内置运维模块与任务。
 api_router.include_router(operation_modules.router, prefix="/operation-modules", tags=["operation-modules"])
+# /api/v1/operation-module-proposals：管理 AI 辅助生成的运维模块提案。
+api_router.include_router(operation_module_proposals.router, prefix="/operation-module-proposals", tags=["operation-module-proposals"])
 # /api/v1/hosts：管理受管 Linux 主机。
 api_router.include_router(hosts.router, prefix="/hosts", tags=["hosts"])
 # /api/v1/host-groups：管理主机组与成员关系。

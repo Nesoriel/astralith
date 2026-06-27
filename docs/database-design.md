@@ -67,7 +67,7 @@ ai_proposals
 - id, evidence_pack_id, proposal_type, title, content_json, status, risk_level
 
 operation_module_proposals
-- id, source_proposal_id, module_key, title, problem_summary, parameters_schema, runbook, generated_playbook, test_plan, status, risk_level
+- id, source_ai_proposal_id, title, problem_summary, module_key, task_key, risk_level, parameter_schema_json, runbook, playbook_json, test_plan_json, rollback_notes, status, validation_status, validation_output, dangerous_command_detected, review_comment, reviewed_by, reviewed_at, created_at
 ```
 
 These tables support desired-state sync, actual-state scanning, diff generation, policy-gated apply plans, structured Evidence Packs, AI analysis, and reviewable proposals. AI-generated content should be stored as proposals or analysis results, not treated as automatically trusted execution input.

@@ -25,3 +25,15 @@ Login
 - APScheduler demonstrates scheduled inspection without introducing Celery Beat.
 - SQLite keeps deployment simple for a graduation-project environment.
 - Built-in operation modules avoid unsafe third-party plugin execution.
+
+## Extended Innovation Direction
+
+After the basic demonstration path is stable, the roadmap in `docs/gitops-ai-roadmap.md` gives Astralith a clearer innovation story for graduation defense and internships:
+
+- GitOps: Git stores versioned desired state for hosts, Docker Compose stacks, operation modules, and policies.
+- DevOps loop: Astralith generates diffs, apply plans, execution logs, validation results, and rollback metadata.
+- AIOps: AI analysis is based on structured Evidence Packs instead of free-form chat.
+- Security engineering: schema validation, policy rules, risk ratings, human review, and audit logs gate proposed changes.
+- Platform engineering: recurring incident experience can become reviewable runbooks and controlled operation module proposals.
+
+This direction should be presented as a controlled, semi-automatic operations platform. It is not a fully autonomous self-healing system, not a Kubernetes platform, and not a user-uploaded plugin marketplace.

@@ -4,6 +4,8 @@
 
 Astralith uses small, demonstrable releases. Each version should be easy to explain in the graduation thesis and defense.
 
+The v0.1.0 to v0.4.0 releases establish the lightweight FastAPI + Ansible automated-operations loop. Starting from v0.5.0, the roadmap follows GitHub issue #1 and evolves Astralith toward an AI-native GitOps control plane. The earlier AI-assisted operation module factory direction is preserved as the v1.0.0 self-growing module factory milestone. The detailed long-term design is maintained in `docs/gitops-ai-roadmap.md`.
+
 ## v0.1.0 — Minimal Demonstration Loop
 
 Goal: provide a runnable local prototype that demonstrates the core automated-operations workflow without pretending to be a full enterprise platform.
@@ -95,63 +97,72 @@ Goal: provide a runnable local prototype that demonstrates the core automated-op
 - Add focused tests for scheduler registration, callback behavior, and cron/interval handling.
 - Add deployment notes for secrets, default admin password, Redis reachability, SQLite persistence, and SSH key mounts.
 
-## AI-assisted Self-growing Operation Modules
+## v0.5.0 — Evidence Pack + AI Incident Analysis MVP
 
-This direction extends Astralith from a lightweight automated operations platform into an AI-assisted platform that can turn repeated incident experience into reviewable and reusable built-in operation module proposals.
-
-The agent helps with requirement analysis, incident summarization, runbook generation, Ansible task draft generation, risk notes, test-plan generation, and documentation. Human review and platform-side validation remain mandatory before a proposal can become an implemented operation module.
-
-### Design Principles
-
-- The agent assists module creation; it does not directly enable generated modules.
-- All remote operations continue to go through Ansible Runner and controlled built-in operation modules.
-- Generated proposals must be traceable back to source task results, logs, and reviewer decisions.
-- Human review is required before a proposal can be marked as implemented.
-- Each proposal should include risk notes, a test plan, and rollback notes.
-
-## v0.5.0 — AI Incident Analysis MVP
-
-Goal: analyze task execution results and generate structured Chinese incident reports.
+Goal: generate structured Chinese incident reports from controlled task evidence without allowing AI to execute repairs.
 
 - Add an AI analysis service boundary.
-- Add configuration for the LLM provider, model name, timeout, and feature toggle.
-- Generate analysis from task status, stdout, stderr, and raw Ansible event data.
+- Add Evidence Pack data structures based on task stdout, stderr, and raw Ansible events.
+- Optionally enrich evidence with host facts, systemd status, Docker status, disk status, and port probes.
 - Persist AI analysis results in SQLite.
-- Expose an API such as `POST /api/v1/tasks/{task_id}/ai-analysis`.
-- Display the generated incident report in the task detail or task log view.
-- Keep original task output visible for manual verification.
+- Display AI analysis on the frontend task detail page.
+- Require evidence references and human-review warnings in reports.
+- Keep automatic repair, executable module generation, and arbitrary shell execution out of scope.
 
-## v0.6.0 — Runbook and Operation Module Proposal
+## v0.6.0 — GitOps Repository Sync MVP
 
-Goal: turn incident analysis into reviewable operation module proposals.
+Goal: introduce Git repositories as the desired-state source for hosts, stacks, modules, and policies.
 
-- Add an `operation_module_proposals` table.
-- Store proposal title, source task, problem summary, proposed module key, proposed task key, risk level, parameter schema, runbook, Ansible draft, test plan, status, and review comment.
-- Support proposal statuses: `draft`, `reviewing`, `approved`, `rejected`, and `implemented`.
-- Generate proposal drafts from failed task results or AI analysis records.
-- Add a proposal list and proposal detail page.
+- Add `gitops_repositories` and `gitops_sync_runs` tables.
+- Support repository URL, branch, local path, enabled state, manual sync, and latest commit SHA tracking.
+- Parse `hosts/*.yaml`, `stacks/*/stack.yaml`, `modules/*/module.yaml`, and `policies/*.yaml`.
+- Store sync errors and expose desired resources in the frontend.
 
-## v0.7.0 — Validation and Human Review
+## v0.7.0 — Desired / Actual Diff + Policy Validation
 
-Goal: introduce a validation and review workflow before a generated proposal can become an implemented module candidate.
+Goal: compare Git-declared desired state with observed actual state and generate controlled execution plans.
 
-- Add proposal validation records.
-- Validate parameter schema and required fields.
-- Prefer Ansible built-in modules over broad command text in generated drafts.
-- Assign or update risk levels based on action type.
-- Record validation results and reviewer decisions.
-- Add approve and reject APIs with review comments.
-- Display validation status, warnings, and review history in the frontend.
+- Add `desired_resources`, `actual_resources`, `resource_diffs`, `apply_plans`, and `policy_results` tables.
+- Implement create/update/delete diff types and Apply Plan generation.
+- Validate Docker Compose files and Ansible playbook syntax.
+- Add deterministic policy validation for high-risk fields and operations.
+- Add Diff Center and Apply Plan frontend pages.
+- Block direct execution when policy validation fails.
 
-## v0.8.0 — Controlled Module Materialization
+## v0.8.0 — Docker Compose GitOps Apply
 
-Goal: convert approved proposals into controlled built-in module drafts or module improvement artifacts.
+Goal: deploy Docker Compose stacks through human-approved plans and Ansible Runner execution.
 
-- Define a conversion path from approved proposal to operation module metadata.
-- Export approved proposals as built-in module drafts.
-- Generate module documentation, example parameters, test notes, and rollback notes.
-- Keep generated drafts reviewable before they are merged into the actual module registry.
-- Optional: generate a pull request draft instead of writing directly to the default branch.
+- Create `/opt/stacks/<stack_name>` on target hosts.
+- Sync compose files and metadata.
+- Run `docker compose config`, `docker compose pull`, and `docker compose up -d` through controlled Ansible tasks.
+- Verify container state, healthcheck, and ports after deployment.
+- Save commit SHA, execution logs, stack state, and rollback metadata.
+- Support rollback to compose content from a previous commit.
+
+## v0.9.0 — AI GitOps Change Proposal
+
+Goal: generate reviewable GitOps change proposals from structured incident evidence.
+
+- Add `ai_proposals` table.
+- Support incident report, runbook, operation module, GitOps change, and rollback plan proposal types.
+- Generate compose, module, or runbook modification suggestions from Evidence Packs.
+- Support patch draft export and optional GitHub PR drafts.
+- Add Proposal Review frontend page.
+- Require human approval before any proposal affects managed infrastructure.
+
+## v1.0.0 — Self-growing Operation Module Factory
+
+Goal: turn incident experience into reviewable, verifiable, reusable controlled operation module proposals.
+
+- Add `operation_module_proposals` table.
+- Store title, problem summary, module key, task key, risk level, parameter schema, runbook, generated playbook, test plan, status, review comments, and rollback notes.
+- Generate module proposals from task results, Evidence Packs, and incident reports.
+- Support `draft`, `reviewing`, `approved`, `rejected`, and `implemented` statuses.
+- Add dangerous-command detection, Ansible module allowlists, parameter validation, and risk prompts.
+- Run Ansible syntax-check and save dry-run/check-mode validation records.
+- Require human review before a proposal can be marked implemented.
+- Export approved proposals as reviewable module drafts, documentation, tests, examples, and rollback notes.
 
 ## Quality Rules
 
@@ -160,4 +171,5 @@ Goal: convert approved proposals into controlled built-in module drafts or modul
 - Backend tests run with `uv run pytest`.
 - Frontend build runs with `pnpm --dir frontend build`.
 - Each release should keep the project lightweight and thesis-friendly.
-- AI-generated operation module proposals must include risk notes, test plans, and human review records before implementation.
+- AI and GitOps features must remain evidence-based, policy-gated, human-approved, and rollback-aware.
+- AI-generated operation module proposals must include risk notes, test plans, rollback notes, and human review records before implementation.

@@ -26,6 +26,18 @@ v0.4.0 提供带登录认证与定时执行的轻量闭环：
 
 项目仍刻意避免企业 CMDB、堡垒机、Kubernetes 与用户上传插件等过大范围。
 
+## 路线方向
+
+在 v0.4 轻量执行闭环之后，Astralith 的后续路线会演进为面向个人服务器、Homelab 与小团队的 AI-native GitOps 运维控制平面：
+
+- Git 仓库描述主机、Docker Compose Stack、运维模块与策略等期望状态。
+- Astralith 同步期望状态，对比实际状态，并生成 Diff 与 Apply Plan。
+- 策略校验、语法检查、dry-run / check mode、人工审核、审计日志与回滚信息共同约束变更。
+- AI 基于结构化 Evidence Pack 分析故障，并生成可审核的故障报告、Runbook、GitOps 变更提案与运维模块提案。
+- AI 不直接执行基础设施变更，也不能绕过受控的 Ansible Runner / Docker Compose 执行链路。
+
+版本计划见 `docs/development-roadmap.md` 与 `docs/gitops-ai-roadmap.md`。
+
 ## 快速开始
 
 后端：
@@ -80,6 +92,7 @@ pnpm --dir frontend build
 
 - `AGENTS.md`：项目边界、编码规则与架构约束。
 - `docs/development-roadmap.md`：版本路线。
+- `docs/gitops-ai-roadmap.md`：AI-native GitOps 与自成长运维模块路线。
 - `docs/architecture.md`：架构概览。
 - `docs/api-design.md`：REST API 设计。
 - `docs/database-design.md`：数据库表设计。

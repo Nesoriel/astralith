@@ -26,6 +26,18 @@ v0.4.0 provides a lightweight authenticated and scheduled execution loop:
 
 The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 
+## Roadmap Direction
+
+After the v0.4 lightweight execution loop, Astralith's roadmap evolves toward an AI-native GitOps control plane for personal servers, homelab environments, and small teams:
+
+- Git repositories describe desired hosts, Docker Compose stacks, operation modules, and policies.
+- Astralith syncs desired state, compares it with actual state, and generates diffs and apply plans.
+- Policy validation, syntax checks, dry-run/check-mode, human approval, audit logs, and rollback metadata gate changes.
+- AI analyzes structured Evidence Packs and creates reviewable incident reports, runbooks, GitOps change proposals, and operation module proposals.
+- AI does not directly execute infrastructure changes or bypass controlled Ansible Runner / Docker Compose execution.
+
+See `docs/development-roadmap.md` and `docs/gitops-ai-roadmap.md` for the version plan.
+
 ## Quick Start
 
 Backend:
@@ -80,6 +92,7 @@ Log in
 
 - `AGENTS.md` — project scope, coding rules, architecture constraints.
 - `docs/development-roadmap.md` — version plan.
+- `docs/gitops-ai-roadmap.md` — AI-native GitOps and self-growing operation module roadmap.
 - `docs/architecture.md` — architecture overview.
 - `docs/api-design.md` — REST API design.
 - `docs/database-design.md` — database tables.

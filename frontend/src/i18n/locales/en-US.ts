@@ -102,6 +102,13 @@ export default {
       createTitle: 'Create Task',
       logs: 'Logs',
       triggerCreated: 'Created task #{id}',
+      aiAnalysis: 'AI Incident Analysis',
+      runAnalysis: 'Generate Analysis',
+      noAnalysis: 'No AI analysis result yet.',
+      analysisCreated: 'AI analysis generated',
+      keyEvidence: 'Key Evidence',
+      possibleCauses: 'Possible Causes',
+      recommendedSteps: 'Recommended Steps',
     },
     scheduledJobs: {
       title: 'Scheduled Jobs',

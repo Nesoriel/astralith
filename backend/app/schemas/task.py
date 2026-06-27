@@ -54,8 +54,20 @@ class TaskResultRead(BaseModel):
     finished_at: datetime | None = None
 
 
+class AiAnalysisResultRead(BaseModel):
+    """返回给前端展示的 AI 故障分析结果。"""
+
+    id: int
+    evidence_pack_id: int
+    summary: str
+    content: dict[str, Any]
+    model_name: str | None = None
+    created_at: datetime
+
+
 class TaskLogsRead(BaseModel):
     """任务详情与日志聚合响应。"""
 
     task: TaskRead
     results: list[TaskResultRead]
+    ai_analyses: list[AiAnalysisResultRead] = Field(default_factory=list)

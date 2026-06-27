@@ -33,6 +33,23 @@ export interface TaskResult {
 export interface TaskLogs {
   task: Task
   results: TaskResult[]
+  ai_analyses: AiAnalysisResult[]
+}
+
+export interface AiAnalysisResult {
+  id: number
+  evidence_pack_id: number
+  summary: string
+  content: {
+    risk_level: string
+    key_evidence: string[]
+    possible_causes: string[]
+    recommended_steps: string[]
+    review_notes: string[]
+    source: Record<string, unknown>
+  }
+  model_name?: string | null
+  created_at: string
 }
 
 export function listTasks() {
@@ -45,4 +62,8 @@ export function createTask(payload: TaskPayload) {
 
 export function getTaskLogs(id: number) {
   return getJson<TaskLogs>(`/tasks/${id}/logs`)
+}
+
+export function createTaskAiAnalysis(id: number) {
+  return postJson<AiAnalysisResult>(`/tasks/${id}/ai-analysis`)
 }

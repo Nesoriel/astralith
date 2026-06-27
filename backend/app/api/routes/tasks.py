@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from backend.app.api.routes.auth import get_current_user
 from backend.app.core.database import get_db
-from backend.app.schemas.task import TaskCreate, TaskLogsRead, TaskRead
+from backend.app.schemas.task import AiAnalysisResultRead, TaskCreate, TaskLogsRead, TaskRead
+from backend.app.services.ai_analysis_service import AiAnalysisService
 from backend.app.services.task_service import TaskService
 from backend.app.workers.tasks import execute_operation_task
 
@@ -61,7 +62,26 @@ def get_task_logs(task_id: int, service: TaskService = Depends(get_task_service)
     task = service.get_task(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    analysis_service = AiAnalysisService(service.db)
     return TaskLogsRead(
         task=service.task_to_schema(task),
         results=[service.result_to_schema(result) for result in service.list_results(task_id)],
+        ai_analyses=[
+            service.ai_analysis_to_schema(analysis)
+            for analysis in analysis_service.list_task_analyses(task_id)
+        ],
     )
+
+
+@router.post("/{task_id}/ai-analysis", response_model=AiAnalysisResultRead, status_code=status.HTTP_201_CREATED)
+def create_task_ai_analysis(
+    task_id: int,
+    _current_user = Depends(get_current_user),
+    service: TaskService = Depends(get_task_service),
+) -> AiAnalysisResultRead:
+    """基于任务结果生成 AI 故障分析报告。"""
+    try:
+        analysis = AiAnalysisService(service.db).analyze_task(task_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return service.ai_analysis_to_schema(analysis)

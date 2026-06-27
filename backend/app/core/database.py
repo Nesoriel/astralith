@@ -1,7 +1,9 @@
 from collections.abc import Generator
 from pathlib import Path
 
-from sqlalchemy import create_engine, inspect, text
+from typing import cast
+
+from sqlalchemy import Table, create_engine, inspect, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
@@ -64,13 +66,17 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
         return
 
     task_columns = {column["name"] for column in inspector.get_columns("tasks")}
-    if "target_ids_json" in task_columns:
-        return
+    if "target_ids_json" not in task_columns:
+        with database_engine.begin() as connection:
+            connection.execute(text("ALTER TABLE tasks ADD COLUMN target_ids_json TEXT"))
+            # 旧原型任务没有目标 ID 信息时统一置为空列表，保证列表页和日志页可读。
+            connection.execute(text("UPDATE tasks SET target_ids_json = '[]' WHERE target_ids_json IS NULL"))
 
-    with database_engine.begin() as connection:
-        connection.execute(text("ALTER TABLE tasks ADD COLUMN target_ids_json TEXT"))
-        # 旧原型任务没有目标 ID 信息时统一置为空列表，保证列表页和日志页可读。
-        connection.execute(text("UPDATE tasks SET target_ids_json = '[]' WHERE target_ids_json IS NULL"))
+    # v0.5.0 新增 AI 分析表；旧 SQLite 开发库启动时需要补齐这两个表。
+    from backend.app.models.task import AiAnalysisResult, EvidencePack
+
+    ai_analysis_tables = [cast(Table, EvidencePack.__table__), cast(Table, AiAnalysisResult.__table__)]
+    Base.metadata.create_all(bind=database_engine, tables=ai_analysis_tables)
 
 
 def get_db() -> Generator[Session, None, None]:

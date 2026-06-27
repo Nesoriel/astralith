@@ -102,6 +102,13 @@ export default {
       createTitle: '创建执行任务',
       logs: '日志',
       triggerCreated: '已创建任务 #{id}',
+      aiAnalysis: 'AI 故障分析',
+      runAnalysis: '生成分析',
+      noAnalysis: '暂无 AI 分析结果。',
+      analysisCreated: 'AI 分析已生成',
+      keyEvidence: '关键证据',
+      possibleCauses: '可能原因',
+      recommendedSteps: '建议排查步骤',
     },
     scheduledJobs: {
       title: '定时任务',

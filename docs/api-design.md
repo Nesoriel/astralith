@@ -2,7 +2,7 @@
 
 All API routes should use the `/api/v1` prefix.
 
-## v0.4.0 Endpoints
+## v0.5.0 Endpoints
 
 ```text
 GET    /health
@@ -33,6 +33,7 @@ GET    /api/v1/tasks
 POST   /api/v1/tasks
 GET    /api/v1/tasks/{task_id}
 GET    /api/v1/tasks/{task_id}/logs
+POST   /api/v1/tasks/{task_id}/ai-analysis
 
 GET    /api/v1/scheduled-jobs
 POST   /api/v1/scheduled-jobs
@@ -49,7 +50,15 @@ POST   /api/v1/scheduled-jobs/{job_id}/trigger
 - `POST /api/v1/auth/login` returns a Bearer JWT for active local users.
 - `GET /api/v1/auth/me` requires a valid Bearer JWT.
 - Write operations such as creating/updating/deleting hosts, groups, tasks, and scheduled jobs require a valid Bearer JWT.
+- `POST /api/v1/tasks/{task_id}/ai-analysis` requires a valid Bearer JWT because it creates persisted analysis records.
 - Read operations remain available for the lightweight dashboard and graduation demonstration flow.
+
+## AI Analysis Rules
+
+- The AI analysis endpoint analyzes existing `task_results`; it does not connect to remote hosts or execute repair commands.
+- The service first persists an Evidence Pack, then stores an AI analysis result linked to that evidence.
+- `GET /api/v1/tasks/{task_id}/logs` returns existing AI analyses beside task logs so the frontend can display evidence-based diagnosis reports.
+- v0.5.0 uses a deterministic local analysis boundary suitable for tests and graduation demonstration. A real model provider can be added later only behind the same Evidence Pack and human-review boundary.
 
 ## Deferred Endpoints
 

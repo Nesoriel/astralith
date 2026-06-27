@@ -39,3 +39,28 @@ class TaskResult(Base):
     raw_event_data: Mapped[str | None] = mapped_column(Text)
     started_at: Mapped[datetime | None] = mapped_column()
     finished_at: Mapped[datetime | None] = mapped_column()
+
+
+class EvidencePack(Base):
+    """AI 故障分析使用的结构化证据包。"""
+
+    __tablename__ = "evidence_packs"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    task_result_id: Mapped[int] = mapped_column(ForeignKey("task_results.id"), nullable=False, index=True)
+    host_id: Mapped[int | None] = mapped_column(ForeignKey("hosts.id"))
+    content_json: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+
+
+class AiAnalysisResult(Base):
+    """基于 Evidence Pack 生成的 AI 诊断报告。"""
+
+    __tablename__ = "ai_analysis_results"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    evidence_pack_id: Mapped[int] = mapped_column(ForeignKey("evidence_packs.id"), nullable=False, index=True)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    content_json: Mapped[str] = mapped_column(Text, nullable=False)
+    model_name: Mapped[str | None] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)

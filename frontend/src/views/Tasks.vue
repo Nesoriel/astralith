@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import { listHosts, type Host } from '../api/hosts'
 import { listOperationModules, type LocalizedText, type OperationModule } from '../api/operationModules'
-import { createTask, getTaskLogs, listTasks, type Task, type TaskLogs, type TaskPayload } from '../api/tasks'
+import { createTask, createTaskAiAnalysis, getTaskLogs, listTasks, type Task, type TaskLogs, type TaskPayload } from '../api/tasks'
 import type { SupportedLocale } from '../i18n'
 
 const { locale, t } = useI18n()
@@ -16,6 +16,7 @@ const logs = ref<TaskLogs | null>(null)
 const logsVisible = ref(false)
 const loading = ref(false)
 const logsLoading = ref(false)
+const analysisLoading = ref(false)
 const form = ref<TaskPayload>({
   name: t('defaults.taskName'),
   module_key: 'system_inspection',
@@ -68,6 +69,18 @@ async function openLogs(task: Task): Promise<void> {
     logs.value = await getTaskLogs(task.id)
   } finally {
     logsLoading.value = false
+  }
+}
+
+async function analyzeTask(): Promise<void> {
+  if (!logs.value) return
+  analysisLoading.value = true
+  try {
+    await createTaskAiAnalysis(logs.value.task.id)
+    logs.value = await getTaskLogs(logs.value.task.id)
+    ElMessage.success(t('pages.tasks.analysisCreated'))
+  } finally {
+    analysisLoading.value = false
   }
 }
 
@@ -145,6 +158,53 @@ onMounted(loadData)
             <el-descriptions-item :label="t('fields.startedAt')">{{ logs.task.started_at ?? '-' }}</el-descriptions-item>
             <el-descriptions-item :label="t('fields.finishedAt')">{{ logs.task.finished_at ?? '-' }}</el-descriptions-item>
           </el-descriptions>
+
+          <el-card shadow="never">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <span>{{ t('pages.tasks.aiAnalysis') }}</span>
+                <el-button size="small" type="primary" :loading="analysisLoading" @click="analyzeTask">
+                  {{ t('pages.tasks.runAnalysis') }}
+                </el-button>
+              </div>
+            </template>
+            <el-empty v-if="logs.ai_analyses.length === 0" :description="t('pages.tasks.noAnalysis')" />
+            <div v-for="analysis in logs.ai_analyses" :key="analysis.id" class="space-y-3 rounded border border-slate-200 p-3">
+              <div class="flex items-center justify-between gap-3">
+                <p class="font-medium">{{ analysis.summary }}</p>
+                <el-tag type="warning">{{ analysis.content.risk_level }}</el-tag>
+              </div>
+              <p class="text-xs text-slate-500">
+                {{ analysis.model_name ?? '-' }} / {{ analysis.created_at }}
+              </p>
+              <div>
+                <p class="font-medium">{{ t('pages.tasks.keyEvidence') }}</p>
+                <ul class="list-disc pl-5 text-sm text-slate-700">
+                  <li v-for="item in analysis.content.key_evidence" :key="item">{{ item }}</li>
+                </ul>
+              </div>
+              <div>
+                <p class="font-medium">{{ t('pages.tasks.possibleCauses') }}</p>
+                <ul class="list-disc pl-5 text-sm text-slate-700">
+                  <li v-for="item in analysis.content.possible_causes" :key="item">{{ item }}</li>
+                </ul>
+              </div>
+              <div>
+                <p class="font-medium">{{ t('pages.tasks.recommendedSteps') }}</p>
+                <ol class="list-decimal pl-5 text-sm text-slate-700">
+                  <li v-for="item in analysis.content.recommended_steps" :key="item">{{ item }}</li>
+                </ol>
+              </div>
+              <el-alert
+                v-for="note in analysis.content.review_notes"
+                :key="note"
+                :title="note"
+                type="warning"
+                :closable="false"
+                show-icon
+              />
+            </div>
+          </el-card>
 
           <el-empty v-if="logs.results.length === 0" :description="t('common.empty')" />
           <el-card v-for="result in logs.results" :key="result.id" shadow="never">

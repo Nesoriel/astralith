@@ -7,9 +7,16 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from backend.app.models.host import Host, HostGroup, HostGroupMember
-from backend.app.models.task import Task, TaskResult
+from backend.app.models.task import AiAnalysisResult, Task, TaskResult
 from backend.app.operation_modules.registry import registry
-from backend.app.schemas.task import TargetType, TaskCreate, TaskRead, TaskResultRead, TaskStatus
+from backend.app.schemas.task import (
+    AiAnalysisResultRead,
+    TargetType,
+    TaskCreate,
+    TaskRead,
+    TaskResultRead,
+    TaskStatus,
+)
 from backend.app.services.ansible_service import AnsibleExecutionResult, AnsibleService
 
 
@@ -138,6 +145,17 @@ class TaskService:
     def result_to_schema(self, result: TaskResult) -> TaskResultRead:
         """把 ORM 任务结果转换为响应模型。"""
         return TaskResultRead.model_validate(result)
+
+    def ai_analysis_to_schema(self, analysis: AiAnalysisResult) -> AiAnalysisResultRead:
+        """把 AI 分析结果转换为前端友好的响应模型。"""
+        return AiAnalysisResultRead(
+            id=analysis.id,
+            evidence_pack_id=analysis.evidence_pack_id,
+            summary=analysis.summary,
+            content=json.loads(analysis.content_json),
+            model_name=analysis.model_name,
+            created_at=analysis.created_at,
+        )
 
     def _validate_module_task(self, module_key: str, task_key: str) -> None:
         """校验内置模块与任务是否存在。"""

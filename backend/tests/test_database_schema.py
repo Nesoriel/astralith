@@ -126,3 +126,7 @@ def test_ensure_sqlite_schema_adds_v060_gitops_tables(tmp_path: Path) -> None:
     assert "gitops_repositories" in table_names
     assert "gitops_sync_runs" in table_names
     assert "desired_resources" in table_names
+    assert "actual_resources" in table_names
+    assert "resource_diffs" in table_names
+    assert "apply_plans" in table_names
+    assert "policy_results" in table_names

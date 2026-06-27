@@ -39,6 +39,61 @@ export interface DesiredResource {
   content_hash: string
 }
 
+export interface ActualResourcePayload {
+  resource_type: string
+  resource_key: string
+  source: string
+  content: Record<string, unknown>
+}
+
+export interface ActualResource extends ActualResourcePayload {
+  id: number
+  content_hash: string
+  scanned_at: string
+}
+
+export interface ResourceDiff {
+  id: number
+  repository_id: number
+  resource_type: string
+  resource_key: string
+  diff_type: string
+  before?: Record<string, unknown> | null
+  after?: Record<string, unknown> | null
+  risk_level: string
+  created_at: string
+}
+
+export interface ApplyPlan {
+  id: number
+  repository_id: number
+  diff_id: number
+  plan: {
+    resource_type: string
+    resource_key: string
+    diff_type: string
+    steps: string[]
+    rollback: string
+  }
+  status: string
+  policy_status: string
+  ai_summary?: string | null
+  approved_by?: number | null
+  approved_at?: string | null
+  created_at: string
+}
+
+export interface PolicyResult {
+  id: number
+  repository_id: number
+  plan_id: number
+  rule_key: string
+  severity: string
+  passed: boolean
+  message: string
+  created_at: string
+}
+
 export function listGitOpsRepositories() {
   return getJson<GitOpsRepository[]>('/gitops-repositories')
 }
@@ -61,4 +116,28 @@ export function listGitOpsSyncRuns(id: number) {
 
 export function listDesiredResources(id: number) {
   return getJson<DesiredResource[]>(`/gitops-repositories/${id}/desired-resources`)
+}
+
+export function upsertActualResource(payload: ActualResourcePayload) {
+  return postJson<ActualResource>('/gitops-repositories/actual-resources', payload)
+}
+
+export function listActualResources() {
+  return getJson<ActualResource[]>('/gitops-repositories/actual-resources')
+}
+
+export function generateDiffs(id: number) {
+  return postJson<ResourceDiff[]>(`/gitops-repositories/${id}/diff`)
+}
+
+export function listDiffs(id: number) {
+  return getJson<ResourceDiff[]>(`/gitops-repositories/${id}/diffs`)
+}
+
+export function listApplyPlans(id: number) {
+  return getJson<ApplyPlan[]>(`/gitops-repositories/${id}/apply-plans`)
+}
+
+export function listPolicyResults(id: number) {
+  return getJson<PolicyResult[]>(`/gitops-repositories/${id}/policy-results`)
 }

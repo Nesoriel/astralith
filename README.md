@@ -10,7 +10,7 @@ Graduation project title:
 
 ## Current Status
 
-v0.6.0 provides a lightweight authenticated operations loop, Evidence Pack based AI incident analysis, and GitOps desired-state repository sync:
+v0.7.0 provides a lightweight authenticated operations loop, Evidence Pack based AI incident analysis, GitOps desired-state sync, and Desired/Actual diff planning:
 
 - Local admin login with JWT authentication and `/api/v1/auth/me`.
 - Frontend login page, token storage, route guard, and logout action.
@@ -24,8 +24,9 @@ v0.6.0 provides a lightweight authenticated operations loop, Evidence Pack based
 - Evidence Packs built from task stdout, stderr, and raw Ansible events.
 - Persisted AI incident analysis reports with evidence references and human-review warnings.
 - GitOps repository configuration, manual sync runs, latest commit tracking, and Desired Resource parsing for `hosts`, `stacks`, `modules`, and `policies`.
+- Actual Resource upsert, Desired/Actual diff generation, Apply Plan creation, and deterministic policy validation.
 - Vue 3 task log display with Simplified Chinese and English i18n.
-- Clean test/build output for the current v0.6.x toolchain.
+- Clean test/build output for the current v0.7.x toolchain.
 
 The project still intentionally avoids enterprise CMDB, bastion-host, Kubernetes, and user-uploaded plugin scope.
 

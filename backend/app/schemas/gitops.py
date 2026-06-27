@@ -128,3 +128,23 @@ class PolicyResultRead(BaseModel):
     passed: bool
     message: str
     created_at: datetime
+
+
+class GitOpsApplyRunRead(BaseModel):
+    """返回给前端展示的 Docker Compose Apply 执行记录。"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    repository_id: int
+    plan_id: int
+    stack_name: str
+    target_path: str
+    commit_sha: str | None = None
+    status: str
+    stdout: str | None = None
+    stderr: str | None = None
+    raw_event_data: str | None = None
+    rollback_json: str
+    started_at: datetime
+    finished_at: datetime | None = None

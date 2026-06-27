@@ -67,6 +67,7 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
         ActualResource,
         ApplyPlan,
         DesiredResource,
+        GitOpsApplyRun,
         GitOpsRepository,
         GitOpsSyncRun,
         PolicyResult,
@@ -81,6 +82,7 @@ def ensure_sqlite_schema(database_engine: Engine) -> None:
         cast(Table, ResourceDiff.__table__),
         cast(Table, ApplyPlan.__table__),
         cast(Table, PolicyResult.__table__),
+        cast(Table, GitOpsApplyRun.__table__),
     ]
     Base.metadata.create_all(bind=database_engine, tables=gitops_tables)
 

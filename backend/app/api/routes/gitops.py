@@ -8,6 +8,7 @@ from backend.app.schemas.gitops import (
     ActualResourceUpsert,
     ApplyPlanRead,
     DesiredResourceRead,
+    GitOpsApplyRunRead,
     GitOpsRepositoryCreate,
     GitOpsRepositoryRead,
     GitOpsRepositoryUpdate,
@@ -15,8 +16,12 @@ from backend.app.schemas.gitops import (
     PolicyResultRead,
     ResourceDiffRead,
 )
+from backend.app.services.ansible_service import AnsibleService
+from backend.app.services.gitops_apply_service import GitOpsApplyService
 from backend.app.services.gitops_diff_service import GitOpsDiffService
 from backend.app.services.gitops_service import GitOpsService
+from backend.app.models.user import User
+from backend.app.models.gitops import ApplyPlan, GitOpsApplyRun
 
 router = APIRouter()
 
@@ -29,6 +34,11 @@ def get_gitops_service(db: Session = Depends(get_db)) -> GitOpsService:
 def get_gitops_diff_service(db: Session = Depends(get_db)) -> GitOpsDiffService:
     """构造 GitOps Diff 服务。"""
     return GitOpsDiffService(db)
+
+
+def get_gitops_apply_service(db: Session = Depends(get_db)) -> GitOpsApplyService:
+    """构造 GitOps Apply 服务。"""
+    return GitOpsApplyService(db, ansible_service=AnsibleService())
 
 
 @router.get("", response_model=list[GitOpsRepositoryRead])
@@ -164,3 +174,39 @@ def list_policy_results(
 ) -> list[PolicyResultRead]:
     """查看 Policy Results。"""
     return [service.policy_result_to_schema(result) for result in service.list_policy_results(repository_id)]
+
+
+@router.post("/apply-plans/{plan_id}/approve", response_model=ApplyPlanRead)
+def approve_apply_plan(
+    plan_id: int,
+    current_user: User = Depends(get_current_user),
+    service: GitOpsApplyService = Depends(get_gitops_apply_service),
+    diff_service: GitOpsDiffService = Depends(get_gitops_diff_service),
+) -> ApplyPlanRead:
+    """人工审批策略通过的 Apply Plan。"""
+    try:
+        return diff_service.plan_to_schema(service.approve_plan(plan_id, reviewer_id=current_user.id))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/apply-plans/{plan_id}/execute", response_model=GitOpsApplyRunRead)
+def execute_apply_plan(
+    plan_id: int,
+    _current_user: User = Depends(get_current_user),
+    service: GitOpsApplyService = Depends(get_gitops_apply_service),
+) -> GitOpsApplyRunRead:
+    """执行已审批的 Docker Compose Apply Plan。"""
+    try:
+        return GitOpsApplyRunRead.model_validate(service.execute_plan(plan_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/{repository_id}/apply-runs", response_model=list[GitOpsApplyRunRead])
+def list_apply_runs(
+    repository_id: int,
+    service: GitOpsApplyService = Depends(get_gitops_apply_service),
+) -> list[GitOpsApplyRunRead]:
+    """查看 Docker Compose Apply 执行记录。"""
+    return [GitOpsApplyRunRead.model_validate(run) for run in service.list_apply_runs(repository_id)]

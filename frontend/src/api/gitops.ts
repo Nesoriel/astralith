@@ -94,6 +94,21 @@ export interface PolicyResult {
   created_at: string
 }
 
+export interface GitOpsApplyRun {
+  id: number
+  repository_id: number
+  plan_id: number
+  stack_name: string
+  target_path: string
+  commit_sha?: string | null
+  status: string
+  stdout?: string | null
+  stderr?: string | null
+  raw_event_data?: string | null
+  rollback_json: string
+  started_at: string
+  finished_at?: string | null
+}
 export function listGitOpsRepositories() {
   return getJson<GitOpsRepository[]>('/gitops-repositories')
 }
@@ -140,4 +155,16 @@ export function listApplyPlans(id: number) {
 
 export function listPolicyResults(id: number) {
   return getJson<PolicyResult[]>(`/gitops-repositories/${id}/policy-results`)
+}
+
+export function approveApplyPlan(id: number) {
+  return postJson<ApplyPlan>(`/gitops-repositories/apply-plans/${id}/approve`)
+}
+
+export function executeApplyPlan(id: number) {
+  return postJson<GitOpsApplyRun>(`/gitops-repositories/apply-plans/${id}/execute`)
+}
+
+export function listApplyRuns(repositoryId: number) {
+  return getJson<GitOpsApplyRun[]>(`/gitops-repositories/${repositoryId}/apply-runs`)
 }

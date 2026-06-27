@@ -30,6 +30,8 @@ export default {
     refresh: '刷新',
     sync: '同步',
     save: '保存',
+    approve: '审批',
+    execute: '执行',
     test: '测试',
     trigger: '触发',
     enable: '启用',
@@ -85,6 +87,8 @@ export default {
     severity: '严重级别',
     passed: '通过',
     message: '消息',
+    stackName: 'Stack 名称',
+    targetPath: '目标路径',
   },
   targetTypes: {
     hosts: '主机',
@@ -156,6 +160,9 @@ export default {
       diffGenerated: 'Diff 与 Apply Plan 已生成',
       applyPlans: 'Apply Plans',
       policyResults: 'Policy Results',
+      planApproved: 'Apply Plan 已审批',
+      planExecuted: 'Apply Plan 已执行',
+      applyRuns: 'Apply Runs',
     },
   },
 } as const

@@ -4,8 +4,11 @@ import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
 import {
+  approveApplyPlan,
+  executeApplyPlan,
   generateDiffs,
   listActualResources,
+  listApplyRuns,
   listApplyPlans,
   listDiffs,
   listGitOpsRepositories,
@@ -14,6 +17,7 @@ import {
   type ActualResource,
   type ActualResourcePayload,
   type ApplyPlan,
+  type GitOpsApplyRun,
   type GitOpsRepository,
   type PolicyResult,
   type ResourceDiff,
@@ -25,6 +29,7 @@ const selectedRepositoryId = ref<number | null>(null)
 const actualResources = ref<ActualResource[]>([])
 const diffs = ref<ResourceDiff[]>([])
 const applyPlans = ref<ApplyPlan[]>([])
+const applyRuns = ref<GitOpsApplyRun[]>([])
 const policyResults = ref<PolicyResult[]>([])
 const loading = ref(false)
 const diffLoading = ref(false)
@@ -69,14 +74,16 @@ async function loadData(): Promise<void> {
 
 async function loadDiffData(repositoryId: number): Promise<void> {
   selectedRepositoryId.value = repositoryId
-  const [diffList, planList, policyList] = await Promise.all([
+  const [diffList, planList, policyList, runList] = await Promise.all([
     listDiffs(repositoryId),
     listApplyPlans(repositoryId),
     listPolicyResults(repositoryId),
+    listApplyRuns(repositoryId),
   ])
   diffs.value = diffList
   applyPlans.value = planList
   policyResults.value = policyList
+  applyRuns.value = runList
 }
 
 async function submitActualResource(): Promise<void> {
@@ -96,6 +103,18 @@ async function runDiff(): Promise<void> {
   } finally {
     diffLoading.value = false
   }
+}
+
+async function approvePlan(plan: ApplyPlan): Promise<void> {
+  await approveApplyPlan(plan.id)
+  ElMessage.success(t('pages.gitops.planApproved'))
+  if (selectedRepositoryId.value !== null) await loadDiffData(selectedRepositoryId.value)
+}
+
+async function executePlan(plan: ApplyPlan): Promise<void> {
+  await executeApplyPlan(plan.id)
+  ElMessage.success(t('pages.gitops.planExecuted'))
+  if (selectedRepositoryId.value !== null) await loadDiffData(selectedRepositoryId.value)
 }
 
 function formatJson(value: Record<string, unknown> | null | undefined): string {
@@ -171,6 +190,27 @@ onMounted(loadData)
               <li v-for="step in scope.row.plan.steps" :key="step">{{ step }}</li>
             </ol>
           </template>
+        </el-table-column>
+        <el-table-column :label="t('common.actions')" width="180">
+          <template #default="scope">
+            <el-button size="small" @click="approvePlan(scope.row)">{{ t('common.approve') }}</el-button>
+            <el-button size="small" type="primary" @click="executePlan(scope.row)">{{ t('common.execute') }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
+    <el-card>
+      <template #header>{{ t('pages.gitops.applyRuns') }}</template>
+      <el-table :data="applyRuns" empty-text="-">
+        <el-table-column prop="id" :label="t('fields.id')" width="80" />
+        <el-table-column prop="stack_name" :label="t('fields.stackName')" width="180" />
+        <el-table-column prop="status" :label="t('fields.status')" width="120">
+          <template #default="scope"><el-tag :type="statusTagType(scope.row.status)">{{ scope.row.status }}</el-tag></template>
+        </el-table-column>
+        <el-table-column prop="target_path" :label="t('fields.targetPath')" min-width="220" />
+        <el-table-column prop="stdout" :label="t('fields.stdout')" min-width="220">
+          <template #default="scope">{{ scope.row.stdout || '-' }}</template>
         </el-table-column>
       </el-table>
     </el-card>

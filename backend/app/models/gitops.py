@@ -113,3 +113,23 @@ class PolicyResult(Base):
     passed: Mapped[bool] = mapped_column(Boolean, nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(default=utc_now, nullable=False)
+
+
+class GitOpsApplyRun(Base):
+    """一次 Docker Compose GitOps Apply 执行记录。"""
+
+    __tablename__ = "gitops_apply_runs"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    repository_id: Mapped[int] = mapped_column(ForeignKey("gitops_repositories.id"), nullable=False, index=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("apply_plans.id"), nullable=False, index=True)
+    stack_name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    target_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    commit_sha: Mapped[str | None] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    stdout: Mapped[str | None] = mapped_column(Text)
+    stderr: Mapped[str | None] = mapped_column(Text)
+    raw_event_data: Mapped[str | None] = mapped_column(Text)
+    rollback_json: Mapped[str] = mapped_column(Text, nullable=False)
+    started_at: Mapped[datetime] = mapped_column(default=utc_now, nullable=False)
+    finished_at: Mapped[datetime | None] = mapped_column()

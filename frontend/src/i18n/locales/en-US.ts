@@ -30,6 +30,8 @@ export default {
     refresh: 'Refresh',
     sync: 'Sync',
     save: 'Save',
+    approve: 'Approve',
+    execute: 'Execute',
     test: 'Test',
     trigger: 'Trigger',
     enable: 'Enable',
@@ -85,6 +87,8 @@ export default {
     severity: 'Severity',
     passed: 'Passed',
     message: 'Message',
+    stackName: 'Stack Name',
+    targetPath: 'Target Path',
   },
   targetTypes: {
     hosts: 'Hosts',
@@ -156,6 +160,9 @@ export default {
       diffGenerated: 'Diffs and Apply Plans generated',
       applyPlans: 'Apply Plans',
       policyResults: 'Policy Results',
+      planApproved: 'Apply plan approved',
+      planExecuted: 'Apply plan executed',
+      applyRuns: 'Apply Runs',
     },
   },
 } as const

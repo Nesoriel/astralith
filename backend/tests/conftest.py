@@ -34,8 +34,8 @@ def db_session() -> Generator[Session, None, None]:
 def disable_task_dispatch(monkeypatch: pytest.MonkeyPatch) -> None:
     """API 测试默认不连接 Redis，按需在单个测试中覆盖投递函数。"""
     monkeypatch.setattr("backend.app.api.routes.tasks.dispatch_task", lambda task_id: None)
+    monkeypatch.setattr("backend.app.api.routes.operation_modules.dispatch_task", lambda task_id: None)
     monkeypatch.setattr("backend.app.services.schedule_service.dispatch_task", lambda task_id: None)
-
 
 @pytest.fixture()
 def client() -> Generator[TestClient, None, None]:

@@ -29,6 +29,9 @@ DELETE /api/v1/host-groups/{group_id}/hosts/{host_id}
 
 GET    /api/v1/operation-modules
 GET    /api/v1/operation-modules/{module_key}
+GET    /api/v1/operation-modules/{module_key}/recent-tasks
+POST   /api/v1/operation-modules/{module_key}/tasks/{task_key}/preview-playbook
+POST   /api/v1/operation-modules/{module_key}/tasks/{task_key}/create-task
 GET    /api/v1/operation-module-proposals
 POST   /api/v1/operation-module-proposals
 POST   /api/v1/operation-module-proposals/from-ai-proposals/{ai_proposal_id}
@@ -41,7 +44,9 @@ GET    /api/v1/tasks
 POST   /api/v1/tasks
 GET    /api/v1/tasks/{task_id}
 GET    /api/v1/tasks/{task_id}/logs
+GET    /api/v1/tasks/{task_id}/incident-context
 POST   /api/v1/tasks/{task_id}/ai-analysis
+POST   /api/v1/tasks/{task_id}/ai-proposal
 
 GET    /api/v1/scheduled-jobs
 POST   /api/v1/scheduled-jobs

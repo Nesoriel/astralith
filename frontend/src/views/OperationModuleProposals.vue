@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -16,9 +16,12 @@ import {
 
 const { t } = useI18n()
 const proposals = ref<OperationModuleProposal[]>([])
+const statusFilter = ref('all')
 const loading = ref(false)
 const reviewComment = ref('')
 const exportText = ref('')
+
+const filteredProposals = computed(() => statusFilter.value === 'all' ? proposals.value : proposals.value.filter((item) => item.status === statusFilter.value))
 const form = ref<OperationModuleProposalPayload>({
   title: t('defaults.moduleProposalTitle'),
   problem_summary: t('pages.operationModuleProposals.defaultProblem'),
@@ -118,12 +121,21 @@ onMounted(loadData)
         <div class="flex items-center justify-between">
           <span>{{ t('pages.operationModuleProposals.proposals') }}</span>
           <div class="flex items-center gap-2">
+            <el-select v-model="statusFilter" class="w-36">
+              <el-option label="all" value="all" />
+              <el-option label="draft" value="draft" />
+              <el-option label="reviewing" value="reviewing" />
+              <el-option label="approved" value="approved" />
+              <el-option label="rejected" value="rejected" />
+              <el-option label="implemented" value="implemented" />
+              <el-option label="blocked" value="blocked" />
+            </el-select>
             <el-input v-model="reviewComment" class="w-72" :placeholder="t('pages.aiProposals.reviewComment')" />
             <el-button size="small" :loading="loading" @click="loadData">{{ t('common.refresh') }}</el-button>
           </div>
         </div>
       </template>
-      <el-table v-loading="loading" :data="proposals" empty-text="-">
+      <el-table v-loading="loading" :data="filteredProposals" empty-text="-">
         <el-table-column prop="id" :label="t('fields.id')" width="80" />
         <el-table-column prop="module_key" :label="t('fields.module')" width="190" />
         <el-table-column prop="task_key" :label="t('fields.moduleTask')" width="160" />

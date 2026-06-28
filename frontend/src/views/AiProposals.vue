@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -11,11 +11,15 @@ import {
   type AiProposal,
   type AiProposalPayload,
 } from '../api/aiProposals'
+import { generateOperationModuleProposalFromAi as generateModuleProposal } from '../api/operationModuleProposals'
 
 const { t } = useI18n()
 const proposals = ref<AiProposal[]>([])
+const statusFilter = ref('all')
 const loading = ref(false)
 const reviewComment = ref('')
+
+const filteredProposals = computed(() => statusFilter.value === 'all' ? proposals.value : proposals.value.filter((item) => item.status === statusFilter.value))
 const form = ref<AiProposalPayload>({
   proposal_type: 'runbook',
   title: t('defaults.aiProposalTitle'),
@@ -60,6 +64,11 @@ async function rejectProposal(proposal: AiProposal): Promise<void> {
   await loadData()
 }
 
+async function generateModule(proposal: AiProposal): Promise<void> {
+  await generateModuleProposal(proposal.id)
+  ElMessage.success(t('pages.aiProposals.moduleProposalGenerated'))
+}
+
 function formatJson(value: Record<string, unknown>): string {
   return JSON.stringify(value, null, 2)
 }
@@ -93,12 +102,18 @@ onMounted(loadData)
         <div class="flex items-center justify-between">
           <span>{{ t('pages.aiProposals.proposals') }}</span>
           <div class="flex items-center gap-2">
+            <el-select v-model="statusFilter" class="w-36">
+              <el-option label="all" value="all" />
+              <el-option label="draft" value="draft" />
+              <el-option label="approved" value="approved" />
+              <el-option label="rejected" value="rejected" />
+            </el-select>
             <el-input v-model="reviewComment" class="w-72" :placeholder="t('pages.aiProposals.reviewComment')" />
             <el-button size="small" :loading="loading" @click="loadData">{{ t('common.refresh') }}</el-button>
           </div>
         </div>
       </template>
-      <el-table v-loading="loading" :data="proposals" empty-text="-">
+      <el-table v-loading="loading" :data="filteredProposals" empty-text="-">
         <el-table-column prop="id" :label="t('fields.id')" width="80" />
         <el-table-column prop="proposal_type" :label="t('fields.proposalType')" width="140" />
         <el-table-column prop="title" :label="t('fields.title')" min-width="220" />
@@ -113,6 +128,7 @@ onMounted(loadData)
           <template #default="scope">
             <el-button size="small" @click="approveProposal(scope.row)">{{ t('common.approve') }}</el-button>
             <el-button size="small" type="danger" @click="rejectProposal(scope.row)">{{ t('common.reject') }}</el-button>
+            <el-button size="small" type="success" @click="generateModule(scope.row)">{{ t('pages.aiProposals.generateModuleProposal') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

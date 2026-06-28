@@ -29,6 +29,10 @@ v1.0.0 是第一个正式版本，提供带登录认证、定时执行、Evidenc
 - 支持 AI GitOps 变更与 Runbook 提案，并保存人工批准/拒绝评审记录。
 - 支持自增长运维模块提案，包含危险命令检测、校验状态、评审意见与可导出模块草案。
 - 支持 Dashboard Summary API 与运维执行、GitOps 对账、AI/Proposal 审核指标卡片。
+- 支持运维模块工作台，展示模块详情、参数 Schema、Playbook 预览、快速执行与最近任务。
+- 支持任务故障闭环，将日志、Evidence Pack、AI 分析与 Proposal 生成串联起来。
+- 支持 GitOps 对账工作台，按 Actual、Diff、Apply Plan、Policy、Apply Run 展示流程。
+- 支持提案审核工作台增强，包含状态筛选与 AI Proposal 生成模块提案入口。
 - Vue 3 任务日志展示，并支持简体中文与英文 i18n。
 - 针对当前 v1.0.x 工具链保持干净的测试与构建输出。
 

@@ -36,6 +36,19 @@ export interface TaskLogs {
   ai_analyses: AiAnalysisResult[]
 }
 
+export interface EvidencePack {
+  id: number
+  task_result_id: number
+  host_id?: number | null
+  content: Record<string, unknown>
+  created_at: string
+}
+
+export interface TaskIncidentContext extends TaskLogs {
+  evidence_packs: EvidencePack[]
+  ai_proposals: Record<string, unknown>[]
+}
+
 export interface AiAnalysisResult {
   id: number
   evidence_pack_id: number
@@ -66,4 +79,12 @@ export function getTaskLogs(id: number) {
 
 export function createTaskAiAnalysis(id: number) {
   return postJson<AiAnalysisResult>(`/tasks/${id}/ai-analysis`)
+}
+
+export function getTaskIncidentContext(id: number) {
+  return getJson<TaskIncidentContext>(`/tasks/${id}/incident-context`)
+}
+
+export function createTaskAiProposal(taskId: number, analysisId: number) {
+  return postJson<Record<string, unknown>>(`/tasks/${taskId}/ai-proposal`, { analysis_id: analysisId })
 }

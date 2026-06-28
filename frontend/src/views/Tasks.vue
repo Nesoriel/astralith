@@ -5,14 +5,14 @@ import { useI18n } from 'vue-i18n'
 
 import { listHosts, type Host } from '../api/hosts'
 import { listOperationModules, type LocalizedText, type OperationModule } from '../api/operationModules'
-import { createTask, createTaskAiAnalysis, getTaskLogs, listTasks, type Task, type TaskLogs, type TaskPayload } from '../api/tasks'
+import { createTask, createTaskAiAnalysis, createTaskAiProposal, getTaskIncidentContext, listTasks, type Task, type TaskIncidentContext, type TaskPayload } from '../api/tasks'
 import type { SupportedLocale } from '../i18n'
 
 const { locale, t } = useI18n()
 const hosts = ref<Host[]>([])
 const modules = ref<OperationModule[]>([])
 const tasks = ref<Task[]>([])
-const logs = ref<TaskLogs | null>(null)
+const logs = ref<TaskIncidentContext | null>(null)
 const logsVisible = ref(false)
 const loading = ref(false)
 const logsLoading = ref(false)
@@ -66,7 +66,7 @@ async function openLogs(task: Task): Promise<void> {
   logsVisible.value = true
   logsLoading.value = true
   try {
-    logs.value = await getTaskLogs(task.id)
+    logs.value = await getTaskIncidentContext(task.id)
   } finally {
     logsLoading.value = false
   }
@@ -77,11 +77,22 @@ async function analyzeTask(): Promise<void> {
   analysisLoading.value = true
   try {
     await createTaskAiAnalysis(logs.value.task.id)
-    logs.value = await getTaskLogs(logs.value.task.id)
+    logs.value = await getTaskIncidentContext(logs.value.task.id)
     ElMessage.success(t('pages.tasks.analysisCreated'))
   } finally {
     analysisLoading.value = false
   }
+}
+
+async function generateProposal(analysisId: number): Promise<void> {
+  if (!logs.value) return
+  await createTaskAiProposal(logs.value.task.id, analysisId)
+  logs.value = await getTaskIncidentContext(logs.value.task.id)
+  ElMessage.success(t('pages.tasks.proposalCreated'))
+}
+
+function formatJson(value: unknown): string {
+  return JSON.stringify(value, null, 2)
 }
 
 onMounted(loadData)
@@ -162,13 +173,17 @@ onMounted(loadData)
           <el-card shadow="never">
             <template #header>
               <div class="flex items-center justify-between">
-                <span>{{ t('pages.tasks.aiAnalysis') }}</span>
+                <span>{{ t('pages.tasks.incidentFlow') }}</span>
                 <el-button size="small" type="primary" :loading="analysisLoading" @click="analyzeTask">
                   {{ t('pages.tasks.runAnalysis') }}
                 </el-button>
               </div>
             </template>
             <el-empty v-if="logs.ai_analyses.length === 0" :description="t('pages.tasks.noAnalysis')" />
+            <div v-if="logs.evidence_packs.length > 0" class="mb-4">
+              <p class="mb-2 font-medium">{{ t('pages.tasks.evidencePacks') }}</p>
+              <pre class="max-h-52 overflow-auto rounded bg-slate-100 p-3 text-xs">{{ formatJson(logs.evidence_packs.map((item) => item.content)) }}</pre>
+            </div>
             <div v-for="analysis in logs.ai_analyses" :key="analysis.id" class="space-y-3 rounded border border-slate-200 p-3">
               <div class="flex items-center justify-between gap-3">
                 <p class="font-medium">{{ analysis.summary }}</p>
@@ -203,6 +218,13 @@ onMounted(loadData)
                 :closable="false"
                 show-icon
               />
+              <el-button size="small" type="primary" @click="generateProposal(analysis.id)">
+                {{ t('pages.tasks.generateProposal') }}
+              </el-button>
+            </div>
+            <div v-if="logs.ai_proposals.length > 0" class="mt-4">
+              <p class="mb-2 font-medium">{{ t('pages.tasks.relatedProposals') }}</p>
+              <pre class="max-h-52 overflow-auto rounded bg-slate-100 p-3 text-xs">{{ formatJson(logs.ai_proposals) }}</pre>
             </div>
           </el-card>
 

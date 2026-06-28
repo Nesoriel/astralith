@@ -85,3 +85,27 @@ class OperationModuleRead(BaseModel):
     name: LocalizedTextRead
     description: LocalizedTextRead
     tasks: list[OperationTaskRead]
+
+
+class OperationPlaybookPreviewRequest(BaseModel):
+    """预览模块任务 Playbook 的请求体。"""
+
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
+
+class OperationPlaybookPreviewRead(BaseModel):
+    """模块任务 Playbook 预览结果。"""
+
+    module_key: str
+    task_key: str
+    parameters: dict[str, Any]
+    playbook: list[dict[str, Any]]
+
+
+class OperationModuleTaskCreateRequest(BaseModel):
+    """从模块任务快捷创建执行任务的请求体。"""
+
+    name: str = Field(min_length=1, max_length=100)
+    target_type: str
+    target_ids: list[int] = Field(min_length=1)
+    parameters: dict[str, Any] = Field(default_factory=dict)

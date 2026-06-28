@@ -71,3 +71,29 @@ class TaskLogsRead(BaseModel):
     task: TaskRead
     results: list[TaskResultRead]
     ai_analyses: list[AiAnalysisResultRead] = Field(default_factory=list)
+
+
+class EvidencePackRead(BaseModel):
+    """任务故障上下文中的 Evidence Pack。"""
+
+    id: int
+    task_result_id: int
+    host_id: int | None = None
+    content: dict[str, Any]
+    created_at: datetime
+
+
+class TaskAiProposalCreate(BaseModel):
+    """从任务故障分析生成 AI Proposal 的请求体。"""
+
+    analysis_id: int
+
+
+class TaskIncidentContextRead(BaseModel):
+    """任务故障分析工作流聚合响应。"""
+
+    task: TaskRead
+    results: list[TaskResultRead]
+    evidence_packs: list[EvidencePackRead] = Field(default_factory=list)
+    ai_analyses: list[AiAnalysisResultRead] = Field(default_factory=list)
+    ai_proposals: list[dict[str, Any]] = Field(default_factory=list)

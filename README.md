@@ -29,6 +29,10 @@ v1.0.0 is the first formal release. It provides a lightweight authenticated oper
 - AI GitOps change and runbook proposals with human approve/reject review records.
 - Self-growing operation module proposals with dangerous-command detection, validation status, review comments, and exportable module drafts.
 - Dashboard Summary API and metric cards for operations execution, GitOps reconciliation, and AI/proposal review.
+- Operation Module Workbench with module details, parameter schemas, playbook previews, quick execution, and recent task history.
+- Task Incident Flow linking logs, Evidence Packs, AI analysis, and proposal generation.
+- GitOps Workbench with Actual, Diff, Apply Plan, Policy, and Apply Run steps.
+- Proposal Review Workbench enhancements with status filters and AI-to-module proposal generation.
 - Vue 3 task log display with Simplified Chinese and English i18n.
 - Clean test/build output for the current v1.0.x toolchain.
 

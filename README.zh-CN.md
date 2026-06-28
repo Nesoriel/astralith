@@ -30,9 +30,11 @@ v1.0.0 是第一个正式版本，提供带登录认证、定时执行、Evidenc
 - 支持自增长运维模块提案，包含危险命令检测、校验状态、评审意见与可导出模块草案。
 - 支持 Dashboard Summary API 与运维执行、GitOps 对账、AI/Proposal 审核指标卡片。
 - 支持运维模块工作台，展示模块详情、参数 Schema、Playbook 预览、快速执行与最近任务。
+- 支持基于 Schema 的运维模块参数表单，并保留高级 JSON 模式作为兜底。
 - 支持任务故障闭环，将日志、Evidence Pack、AI 分析与 Proposal 生成串联起来。
 - 支持 GitOps 对账工作台，按 Actual、Diff、Apply Plan、Policy、Apply Run 展示流程。
-- 支持提案审核工作台增强，包含状态筛选与 AI Proposal 生成模块提案入口。
+- 支持提案审核工作台增强，包含状态筛选、AI Proposal 生成模块提案入口与模块提案详情深链接。
+- 统一 v1.0.x 工作台的 JSON 输入错误处理与 status/risk 标签颜色映射。
 - Vue 3 任务日志展示，并支持简体中文与英文 i18n。
 - 针对当前 v1.0.x 工具链保持干净的测试与构建输出。
 
@@ -48,7 +50,7 @@ v1.0.0 是第一个正式版本，提供带登录认证、定时执行、Evidenc
 - AI 基于结构化 Evidence Pack 分析故障，并生成可审核的故障报告、Runbook、GitOps 变更提案与运维模块提案。
 - AI 不直接执行基础设施变更，也不能绕过受控的 Ansible Runner / Docker Compose 执行链路。
 
-版本计划见 `docs/development-roadmap.md` 与 `docs/gitops-ai-roadmap.md`。v1.0.x 系列按 GitHub issue #3 继续聚焦前端工作台产品化；issue #3 评论区反馈已将 v1.0.6-v1.0.8 定为体验闭环修复、统一 GitOps 工作台、Dashboard 待处理事项与深链接补强。
+版本计划见 `docs/development-roadmap.md` 与 `docs/gitops-ai-roadmap.md`。v1.0.x 系列按 GitHub issue #3 继续聚焦前端工作台产品化；issue #3 评论区反馈已将 v1.0.6-v1.0.9 定为体验闭环修复、统一 GitOps 工作台、Dashboard 待处理事项、深链接补强、Schema 参数表单、JSON 错误处理与 status/risk 标签统一。v1.0.9 是 issue #3 的收尾质量版本，更大的 GitOps Apply 与扫描器能力应转入 issue #2。
 
 ## 快速开始
 

@@ -3,7 +3,7 @@ export type TagType = 'success' | 'warning' | 'danger' | 'info'
 export function statusTagType(status: string): TagType {
   if (['success', 'approved', 'implemented', 'passed'].includes(status)) return 'success'
   if (['failed', 'cancelled', 'rejected', 'blocked'].includes(status)) return 'danger'
-  if (['running', 'pending', 'pending_review', 'reviewing', 'draft'].includes(status)) return 'warning'
+  if (['running', 'pending', 'partial_success', 'pending_review', 'reviewing', 'draft'].includes(status)) return 'warning'
   return 'info'
 }
 

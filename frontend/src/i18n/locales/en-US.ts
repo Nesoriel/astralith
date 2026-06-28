@@ -38,6 +38,7 @@ export default {
     propose: 'Generate Proposal',
     implement: 'Mark Implemented',
     export: 'Export',
+    detail: 'Detail',
     test: 'Test',
     trigger: 'Trigger',
     enable: 'Enable',
@@ -105,6 +106,10 @@ export default {
     testPlan: 'Test Plan',
     rollbackNotes: 'Rollback Notes',
     validationStatus: 'Validation Status',
+    dangerousCommandDetected: 'Dangerous Command',
+    reviewComment: 'Review Comment',
+    reviewedBy: 'Reviewed By',
+    reviewedAt: 'Reviewed At',
   },
   targetTypes: {
     hosts: 'Hosts',
@@ -165,6 +170,8 @@ export default {
       playbookPreview: 'Playbook Preview',
       recentTasks: 'Recent Tasks',
       taskCreated: 'Module task created',
+      formMode: 'Form Mode',
+      advancedJsonMode: 'Advanced JSON Mode',
       empty: 'No operation modules available.',
     },
     operationModuleProposals: {
@@ -180,6 +187,9 @@ export default {
       defaultApproveComment: 'Approved as a formal module draft for implementation.',
       defaultRejectComment: 'Rejected; risk notes need to be revised.',
       defaultImplementComment: 'Exported as a built-in module draft.',
+      basicInfo: 'Basic Info',
+      review: 'Review',
+      highRiskNotice: 'This proposal contains high risk, dangerous commands, or failed validation. Review it first.',
     },
     tasks: {
       title: 'Tasks',

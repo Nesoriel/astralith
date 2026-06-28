@@ -38,6 +38,7 @@ export default {
     propose: '生成提案',
     implement: '标记实现',
     export: '导出',
+    detail: '详情',
     test: '测试',
     trigger: '触发',
     enable: '启用',
@@ -105,6 +106,10 @@ export default {
     testPlan: '测试计划',
     rollbackNotes: '回滚说明',
     validationStatus: '校验状态',
+    dangerousCommandDetected: '危险命令',
+    reviewComment: '评审意见',
+    reviewedBy: '评审人',
+    reviewedAt: '评审时间',
   },
   targetTypes: {
     hosts: '主机',
@@ -165,6 +170,8 @@ export default {
       playbookPreview: 'Playbook 预览',
       recentTasks: '最近执行记录',
       taskCreated: '模块任务已创建',
+      formMode: '表单模式',
+      advancedJsonMode: '高级 JSON 模式',
       empty: '暂无可用运维模块。',
     },
     operationModuleProposals: {
@@ -180,6 +187,9 @@ export default {
       defaultApproveComment: '批准作为正式模块草案继续实现。',
       defaultRejectComment: '拒绝该模块提案，需要重新整理风险。',
       defaultImplementComment: '已作为内置模块草案导出。',
+      basicInfo: '基本信息',
+      review: '审核',
+      highRiskNotice: '该提案包含高风险、危险命令或校验失败信息，请优先复核。',
     },
     tasks: {
       title: '执行任务',

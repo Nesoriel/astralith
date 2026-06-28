@@ -222,6 +222,13 @@ Goal: turn the v1.0.0 backend capabilities into clear, workflow-oriented fronten
 - Add focused workflow tests for the new workbench links and guards.
 - Keep i18n keys synchronized and avoid new hardcoded user-facing strings.
 
+### v1.0.9 — Issue #3 Final Quality Polish
+
+- Use schema-driven operation module parameter forms with an advanced JSON fallback.
+- Add Operation Module Proposal detail drawers and deep links.
+- Unify JSON parse error handling and status/risk tag mapping across workbenches.
+- Treat v1.0.9 as the issue #3 closure pass; move larger GitOps Apply, scanner, and orchestration features to issue #2.
+
 ## Quality Rules
 
 - Code comments and docstrings are Chinese.

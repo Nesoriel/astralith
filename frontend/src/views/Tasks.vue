@@ -8,6 +8,7 @@ import { listHosts, type Host } from '../api/hosts'
 import { listOperationModules, type LocalizedText, type OperationModule } from '../api/operationModules'
 import { createTask, createTaskAiAnalysis, createTaskAiProposal, getTaskIncidentContext, listTasks, type Task, type TaskIncidentContext, type TaskPayload } from '../api/tasks'
 import type { SupportedLocale } from '../i18n'
+import { statusTagType } from '../utils/status'
 
 const { locale, t } = useI18n()
 const route = useRoute()
@@ -34,13 +35,6 @@ const selectedModule = computed(() => modules.value.find((item) => item.module_k
 function localize(text: LocalizedText): string {
   // 模块元数据来自后端，同样按当前 locale 展示。
   return text[activeLocale.value] ?? text['zh-CN']
-}
-
-function statusTagType(status: string): 'success' | 'warning' | 'danger' | 'info' {
-  if (status === 'success') return 'success'
-  if (status === 'partial_success' || status === 'running') return 'warning'
-  if (status === 'failed' || status === 'cancelled') return 'danger'
-  return 'info'
 }
 
 async function loadData(): Promise<void> {

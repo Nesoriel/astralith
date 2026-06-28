@@ -13,6 +13,7 @@ import {
   type AiProposalPayload,
 } from '../api/aiProposals'
 import { generateOperationModuleProposalFromAi as generateModuleProposal } from '../api/operationModuleProposals'
+import { parseJsonObject, riskTagType, statusTagType } from '../utils/status'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -34,13 +35,6 @@ const form = ref<AiProposalPayload>({
 })
 const contentText = ref(JSON.stringify(form.value.content, null, 2))
 
-function statusTagType(status: string): 'success' | 'warning' | 'danger' | 'info' {
-  if (status === 'approved') return 'success'
-  if (status === 'rejected') return 'danger'
-  if (status === 'draft') return 'warning'
-  return 'info'
-}
-
 async function loadData(): Promise<void> {
   loading.value = true
   try {
@@ -51,10 +45,14 @@ async function loadData(): Promise<void> {
 }
 
 async function submitProposal(): Promise<void> {
-  form.value.content = JSON.parse(contentText.value) as Record<string, unknown>
-  await createAiProposal(form.value)
-  ElMessage.success(t('common.success'))
-  await loadData()
+  try {
+    form.value.content = parseJsonObject(contentText.value)
+    await createAiProposal(form.value)
+    ElMessage.success(t('common.success'))
+    await loadData()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
+  }
 }
 
 async function approveProposal(proposal: AiProposal): Promise<void> {
@@ -130,7 +128,9 @@ onMounted(loadData)
         <el-table-column prop="status" :label="t('fields.status')" width="120">
           <template #default="scope"><el-tag :type="statusTagType(scope.row.status)">{{ scope.row.status }}</el-tag></template>
         </el-table-column>
-        <el-table-column prop="risk_level" :label="t('fields.riskLevel')" width="120" />
+        <el-table-column prop="risk_level" :label="t('fields.riskLevel')" width="120">
+          <template #default="scope"><el-tag :type="riskTagType(scope.row.risk_level)">{{ scope.row.risk_level }}</el-tag></template>
+        </el-table-column>
         <el-table-column :label="t('fields.source')" width="160">
           <template #default="scope">
             <el-button v-if="scope.row.source_type" link type="primary" @click="openSource(scope.row)">{{ scope.row.source_type }} #{{ scope.row.source_id }}</el-button>
@@ -153,8 +153,8 @@ onMounted(loadData)
     <el-drawer :model-value="selectedProposal !== null" :title="selectedProposal?.title" size="50%" @close="router.push('/ai-proposals')">
       <div v-if="selectedProposal" class="space-y-3">
         <el-descriptions border :column="1">
-          <el-descriptions-item :label="t('fields.status')">{{ selectedProposal.status }}</el-descriptions-item>
-          <el-descriptions-item :label="t('fields.riskLevel')">{{ selectedProposal.risk_level }}</el-descriptions-item>
+          <el-descriptions-item :label="t('fields.status')"><el-tag :type="statusTagType(selectedProposal.status)">{{ selectedProposal.status }}</el-tag></el-descriptions-item>
+          <el-descriptions-item :label="t('fields.riskLevel')"><el-tag :type="riskTagType(selectedProposal.risk_level)">{{ selectedProposal.risk_level }}</el-tag></el-descriptions-item>
           <el-descriptions-item :label="t('fields.source')">{{ selectedProposal.source_type ?? '-' }} #{{ selectedProposal.source_id ?? '-' }}</el-descriptions-item>
           <el-descriptions-item :label="t('fields.summary')">{{ selectedProposal.summary }}</el-descriptions-item>
         </el-descriptions>

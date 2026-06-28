@@ -335,9 +335,11 @@ v1.0.7 Unified GitOps Workbench
   -> repository, sync, desired, actual, diff, plan, policy, run in one context
 v1.0.8 Dashboard Action Items and Deep Links
   -> pending work lists, query deep links, workflow tests, i18n cleanup
+v1.0.9 Issue #3 Final Quality Polish
+  -> schema parameter forms, module proposal drawer links, JSON/status/risk consistency
 ```
 
-Issue #3 should remain open until v1.0.8 quality work is complete. v1.0.5 is enough for graduation demonstration, but the comment feedback makes the closure bar stricter: the product must be smooth, navigable, and recover gracefully from user errors.
+Issue #3 should close after the v1.0.9 quality pass. v1.0.5 is enough for graduation demonstration, but the comment feedback makes the closure bar stricter: the product must be smooth, navigable, and recover gracefully from user errors.
 
 Principles:
 

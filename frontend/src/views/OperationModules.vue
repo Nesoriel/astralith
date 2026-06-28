@@ -28,6 +28,8 @@ const selectedModuleKey = ref('')
 const selectedTaskKey = ref('')
 const targetIds = ref<number[]>([])
 const taskName = ref('')
+const advancedJsonMode = ref(false)
+const parameterForm = ref<Record<string, unknown>>({})
 const parameterText = ref('{}')
 const preview = ref<PlaybookPreview | null>(null)
 const loading = ref(false)
@@ -36,6 +38,7 @@ const previewLoading = ref(false)
 const activeLocale = computed(() => locale.value as SupportedLocale)
 const selectedModule = computed(() => modules.value.find((item) => item.module_key === selectedModuleKey.value) ?? null)
 const selectedTask = computed(() => selectedModule.value?.tasks.find((item) => item.task_key === selectedTaskKey.value) ?? null)
+const parameterFields = computed(() => Object.entries(selectedTask.value?.parameters ?? {}).map(([key, schema]) => ({ key, schema: normalizeSchema(schema) })))
 
 function localize(text: LocalizedText): string {
   return text[activeLocale.value] ?? text['zh-CN']
@@ -48,10 +51,42 @@ function formatJson(value: unknown): string {
 function exampleParameters(task: OperationTask | null): Record<string, unknown> {
   if (!task) return {}
   const result: Record<string, unknown> = {}
-  for (const key of Object.keys(task.parameters ?? {})) {
-    result[key] = key === 'service_name' ? 'nginx' : ''
+  for (const [key, rawSchema] of Object.entries(task.parameters ?? {})) {
+    const schema = normalizeSchema(rawSchema)
+    if (schema.default !== undefined) result[key] = schema.default
+    else if (schema.enumOptions.length > 0) result[key] = schema.enumOptions[0]
+    else if (schema.type === 'boolean') result[key] = false
+    else if (schema.type === 'number' || schema.type === 'integer') result[key] = 0
+    else result[key] = key === 'service_name' ? 'nginx' : ''
   }
   return result
+}
+
+interface ParameterFieldSchema {
+  type: string
+  description?: string
+  default?: unknown
+  enumOptions: Array<string | number | boolean>
+}
+
+function normalizeSchema(value: unknown): ParameterFieldSchema {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const schema = value as Record<string, unknown>
+    return {
+      type: typeof schema.type === 'string' ? schema.type : 'string',
+      description: typeof schema.description === 'string' ? schema.description : undefined,
+      default: schema.default,
+      enumOptions: Array.isArray(schema.enum) ? schema.enum.filter((item) => ['string', 'number', 'boolean'].includes(typeof item)) as Array<string | number | boolean> : [],
+    }
+  }
+  return { type: 'string', enumOptions: [] }
+}
+
+function parameterObject(): Record<string, unknown> {
+  if (advancedJsonMode.value) return parseJsonObject(parameterText.value)
+  const parameters = { ...parameterForm.value }
+  parameterText.value = JSON.stringify(parameters, null, 2)
+  return parameters
 }
 
 async function loadRecentTasks(): Promise<void> {
@@ -82,7 +117,7 @@ async function runPreview(): Promise<void> {
   if (!selectedModule.value || !selectedTask.value) return
   previewLoading.value = true
   try {
-    const parameters = parseJsonObject(parameterText.value)
+    const parameters = parameterObject()
     preview.value = await previewOperationTaskPlaybook(selectedModule.value.module_key, selectedTask.value.task_key, parameters)
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
@@ -99,7 +134,7 @@ async function submitQuickTask(): Promise<void> {
   if (!selectedModule.value || !selectedTask.value) return
   let parameters: Record<string, unknown>
   try {
-    parameters = parseJsonObject(parameterText.value)
+    parameters = parameterObject()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
     return
@@ -120,10 +155,28 @@ async function submitQuickTask(): Promise<void> {
 }
 
 watch(selectedTask, (task) => {
-  parameterText.value = JSON.stringify(exampleParameters(task), null, 2)
+  parameterForm.value = exampleParameters(task)
+  parameterText.value = JSON.stringify(parameterForm.value, null, 2)
   taskName.value = task ? localize(task.name) : ''
   preview.value = null
 }, { immediate: true })
+
+watch(parameterForm, (value) => {
+  if (!advancedJsonMode.value) parameterText.value = JSON.stringify(value, null, 2)
+}, { deep: true })
+
+watch(advancedJsonMode, (enabled) => {
+  if (!enabled) {
+    try {
+      parameterForm.value = parseJsonObject(parameterText.value)
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
+      advancedJsonMode.value = true
+    }
+  } else {
+    parameterText.value = JSON.stringify(parameterForm.value, null, 2)
+  }
+})
 
 watch(selectedModuleKey, loadRecentTasks)
 
@@ -184,7 +237,20 @@ onMounted(loadData)
                     <el-option v-for="host in hosts" :key="host.id" :label="host.name" :value="host.id" />
                   </el-select>
                 </el-form-item>
-                <el-form-item :label="t('fields.parameters')"><el-input v-model="parameterText" type="textarea" :rows="5" /></el-form-item>
+                <el-form-item :label="t('fields.parameters')">
+                  <el-switch v-model="advancedJsonMode" :active-text="t('pages.operationModules.advancedJsonMode')" :inactive-text="t('pages.operationModules.formMode')" />
+                </el-form-item>
+                <template v-if="!advancedJsonMode">
+                  <el-form-item v-for="field in parameterFields" :key="field.key" :label="field.key">
+                    <el-select v-if="field.schema.enumOptions.length > 0" v-model="parameterForm[field.key]" class="w-full">
+                      <el-option v-for="option in field.schema.enumOptions" :key="String(option)" :label="String(option)" :value="option" />
+                    </el-select>
+                    <el-switch v-else-if="field.schema.type === 'boolean'" v-model="parameterForm[field.key]" />
+                    <el-input-number v-else-if="field.schema.type === 'number' || field.schema.type === 'integer'" v-model="parameterForm[field.key]" class="w-full" />
+                    <el-input v-else v-model="parameterForm[field.key]" :placeholder="field.schema.description" />
+                  </el-form-item>
+                </template>
+                <el-form-item v-else :label="t('fields.parameters')"><el-input v-model="parameterText" type="textarea" :rows="5" /></el-form-item>
               </el-form>
               <div class="flex gap-2">
                 <el-button :loading="previewLoading" @click="runPreview">{{ t('pages.operationModules.previewPlaybook') }}</el-button>

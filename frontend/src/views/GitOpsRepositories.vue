@@ -14,6 +14,7 @@ import {
   type GitOpsRepositoryPayload,
   type GitOpsSyncRun,
 } from '../api/gitops'
+import { statusTagType } from '../utils/status'
 
 const { t } = useI18n()
 const repositories = ref<GitOpsRepository[]>([])
@@ -32,13 +33,6 @@ const form = ref<GitOpsRepositoryPayload>({
 })
 
 const selectedRepository = computed(() => repositories.value.find((item) => item.id === selectedRepositoryId.value))
-
-function statusTagType(status: string): 'success' | 'warning' | 'danger' | 'info' {
-  if (status === 'success') return 'success'
-  if (status === 'failed') return 'danger'
-  if (status === 'running') return 'warning'
-  return 'info'
-}
 
 async function loadRepositories(): Promise<void> {
   loading.value = true

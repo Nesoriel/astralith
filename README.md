@@ -30,9 +30,11 @@ v1.0.0 is the first formal release. It provides a lightweight authenticated oper
 - Self-growing operation module proposals with dangerous-command detection, validation status, review comments, and exportable module drafts.
 - Dashboard Summary API and metric cards for operations execution, GitOps reconciliation, and AI/proposal review.
 - Operation Module Workbench with module details, parameter schemas, playbook previews, quick execution, and recent task history.
+- Schema-driven operation module parameter forms with an advanced JSON fallback for controlled quick execution.
 - Task Incident Flow linking logs, Evidence Packs, AI analysis, and proposal generation.
 - GitOps Workbench with Actual, Diff, Apply Plan, Policy, and Apply Run steps.
-- Proposal Review Workbench enhancements with status filters and AI-to-module proposal generation.
+- Proposal Review Workbench enhancements with status filters, AI-to-module proposal generation, and Operation Module Proposal detail deep links.
+- Unified JSON input error handling and status/risk tag mapping across the v1.0.x workbenches.
 - Vue 3 task log display with Simplified Chinese and English i18n.
 - Clean test/build output for the current v1.0.x toolchain.
 
@@ -48,7 +50,7 @@ After the v0.4 lightweight execution loop, Astralith's roadmap evolves toward an
 - AI analyzes structured Evidence Packs and creates reviewable incident reports, runbooks, GitOps change proposals, and operation module proposals.
 - AI does not directly execute infrastructure changes or bypass controlled Ansible Runner / Docker Compose execution.
 
-See `docs/development-roadmap.md` and `docs/gitops-ai-roadmap.md` for the version plan. The v1.0.x line continues GitHub issue #3 frontend workbench productization; issue #3 comment feedback defines v1.0.6-v1.0.8 as flow fixes, unified GitOps workbench, Dashboard action items, and deep-link improvements.
+See `docs/development-roadmap.md` and `docs/gitops-ai-roadmap.md` for the version plan. The v1.0.x line continues GitHub issue #3 frontend workbench productization; issue #3 comment feedback defines v1.0.6-v1.0.9 as flow fixes, unified GitOps workbench, Dashboard action items, deep-link improvements, schema-driven parameter forms, unified JSON error handling, and unified status/risk tags. v1.0.9 is the final issue #3 polish pass; larger GitOps Apply and scanner capabilities should move to issue #2.
 
 ## Quick Start
 

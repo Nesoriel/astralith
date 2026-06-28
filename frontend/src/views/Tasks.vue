@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { listHosts, type Host } from '../api/hosts'
@@ -9,6 +10,7 @@ import { createTask, createTaskAiAnalysis, createTaskAiProposal, getTaskIncident
 import type { SupportedLocale } from '../i18n'
 
 const { locale, t } = useI18n()
+const route = useRoute()
 const hosts = ref<Host[]>([])
 const modules = ref<OperationModule[]>([])
 const tasks = ref<Task[]>([])
@@ -51,6 +53,9 @@ async function loadData(): Promise<void> {
     if (form.value.target_ids.length === 0 && hostList[0]) {
       form.value.target_ids = [hostList[0].id]
     }
+    const taskId = Number(route.query.task_id)
+    const targetTask = taskList.find((task) => task.id === taskId)
+    if (targetTask) await openLogs(targetTask)
   } finally {
     loading.value = false
   }

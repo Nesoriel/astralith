@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { listHosts, type Host } from '../api/hosts'
@@ -16,8 +17,10 @@ import {
 } from '../api/operationModules'
 import type { Task } from '../api/tasks'
 import type { SupportedLocale } from '../i18n'
+import { parseJsonObject, statusTagType } from '../utils/status'
 
 const { locale, t } = useI18n()
+const router = useRouter()
 const modules = ref<OperationModule[]>([])
 const hosts = ref<Host[]>([])
 const recentTasks = ref<Task[]>([])
@@ -79,24 +82,41 @@ async function runPreview(): Promise<void> {
   if (!selectedModule.value || !selectedTask.value) return
   previewLoading.value = true
   try {
-    const parameters = JSON.parse(parameterText.value) as Record<string, unknown>
+    const parameters = parseJsonObject(parameterText.value)
     preview.value = await previewOperationTaskPlaybook(selectedModule.value.module_key, selectedTask.value.task_key, parameters)
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
   } finally {
     previewLoading.value = false
   }
 }
 
+async function openTask(task: Task): Promise<void> {
+  await router.push(`/tasks?task_id=${task.id}`)
+}
+
 async function submitQuickTask(): Promise<void> {
   if (!selectedModule.value || !selectedTask.value) return
-  const parameters = JSON.parse(parameterText.value) as Record<string, unknown>
-  await createOperationModuleTask(selectedModule.value.module_key, selectedTask.value.task_key, {
-    name: taskName.value || localize(selectedTask.value.name),
-    target_type: 'hosts',
-    target_ids: targetIds.value,
-    parameters,
-  })
-  ElMessage.success(t('pages.operationModules.taskCreated'))
-  await loadRecentTasks()
+  let parameters: Record<string, unknown>
+  try {
+    parameters = parseJsonObject(parameterText.value)
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
+    return
+  }
+  try {
+    const task = await createOperationModuleTask(selectedModule.value.module_key, selectedTask.value.task_key, {
+      name: taskName.value || localize(selectedTask.value.name),
+      target_type: 'hosts',
+      target_ids: targetIds.value,
+      parameters,
+    })
+    ElMessage.success(t('pages.operationModules.taskCreated'))
+    await loadRecentTasks()
+    await router.push(`/tasks?task_id=${task.id}`)
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
+  }
 }
 
 watch(selectedTask, (task) => {
@@ -185,8 +205,13 @@ onMounted(loadData)
             <el-table-column prop="id" :label="t('fields.id')" width="80" />
             <el-table-column prop="name" :label="t('fields.name')" />
             <el-table-column prop="module_task_key" :label="t('fields.moduleTask')" />
-            <el-table-column prop="status" :label="t('fields.status')" />
+            <el-table-column prop="status" :label="t('fields.status')">
+              <template #default="scope"><el-tag :type="statusTagType(scope.row.status)">{{ scope.row.status }}</el-tag></template>
+            </el-table-column>
             <el-table-column prop="created_at" :label="t('fields.createdAt')" />
+            <el-table-column :label="t('common.actions')" width="120">
+              <template #default="scope"><el-button size="small" @click="openTask(scope.row)">{{ t('pages.tasks.logs') }}</el-button></template>
+            </el-table-column>
           </el-table>
         </el-card>
       </div>

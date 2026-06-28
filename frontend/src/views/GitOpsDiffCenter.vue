@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
 import { generateProposalFromApplyPlan } from '../api/aiProposals'
@@ -23,6 +23,7 @@ import {
   type PolicyResult,
   type ResourceDiff,
 } from '../api/gitops'
+import { parseJsonObject, riskTagType, statusTagType } from '../utils/status'
 
 const { t } = useI18n()
 const repositories = ref<GitOpsRepository[]>([])
@@ -44,20 +45,6 @@ const actualForm = ref<ActualResourcePayload>({
 const contentText = ref(JSON.stringify(actualForm.value.content, null, 2))
 
 const steps = ['actual', 'diff', 'plan', 'policy', 'run']
-
-function statusTagType(status: string): 'success' | 'warning' | 'danger' | 'info' {
-  if (status === 'passed' || status === 'success') return 'success'
-  if (status === 'blocked' || status === 'failed') return 'danger'
-  if (status === 'pending' || status === 'pending_review') return 'warning'
-  return 'info'
-}
-
-function riskTagType(risk: string): 'success' | 'warning' | 'danger' | 'info' {
-  if (risk === 'high') return 'danger'
-  if (risk === 'medium') return 'warning'
-  if (risk === 'low') return 'success'
-  return 'info'
-}
 
 async function loadData(): Promise<void> {
   loading.value = true
@@ -87,11 +74,15 @@ async function loadDiffData(repositoryId: number): Promise<void> {
 }
 
 async function submitActualResource(): Promise<void> {
-  actualForm.value.content = JSON.parse(contentText.value) as Record<string, unknown>
-  await upsertActualResource(actualForm.value)
-  ElMessage.success(t('common.success'))
-  activeStep.value = 'diff'
-  await loadData()
+  try {
+    actualForm.value.content = parseJsonObject(contentText.value)
+    await upsertActualResource(actualForm.value)
+    ElMessage.success(t('common.success'))
+    activeStep.value = 'diff'
+    await loadData()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('common.failed'))
+  }
 }
 
 async function runDiff(): Promise<void> {
@@ -115,6 +106,7 @@ async function approvePlan(plan: ApplyPlan): Promise<void> {
 }
 
 async function executePlan(plan: ApplyPlan): Promise<void> {
+  await ElMessageBox.confirm(t('pages.gitops.executeConfirm'), t('common.execute'), { type: 'warning' })
   await executeApplyPlan(plan.id)
   ElMessage.success(t('pages.gitops.planExecuted'))
   activeStep.value = 'run'
@@ -162,6 +154,7 @@ onMounted(loadData)
       <el-tab-pane :label="t('pages.gitops.actualResource')" name="actual">
         <el-card>
           <template #header>{{ t('pages.gitops.actualResource') }}</template>
+          <el-alert class="mb-4" :title="t('pages.gitops.manualActualNotice')" type="warning" :closable="false" show-icon />
           <el-form :model="actualForm" label-width="140px" class="grid gap-2 md:grid-cols-2">
             <el-form-item :label="t('fields.resourceType')"><el-input v-model="actualForm.resource_type" /></el-form-item>
             <el-form-item :label="t('fields.resourceKey')"><el-input v-model="actualForm.resource_key" /></el-form-item>

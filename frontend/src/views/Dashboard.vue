@@ -24,6 +24,7 @@ const summary = ref<DashboardSummary>({
   ai_analyses: 0,
   pending_ai_proposals: 0,
   pending_module_proposals: 0,
+  action_items: [],
 })
 
 interface MetricCard {
@@ -120,6 +121,20 @@ onMounted(loadSummary)
           <p class="mt-2 text-2xl font-semibold">{{ card.value }}</p>
         </el-card>
       </section>
+    </el-card>
+
+    <el-card>
+      <template #header>{{ t('dashboard.actionItems') }}</template>
+      <el-table :data="summary.action_items" empty-text="-">
+        <el-table-column prop="kind" :label="t('fields.source')" width="180" />
+        <el-table-column prop="title" :label="t('fields.title')" />
+        <el-table-column prop="status" :label="t('fields.status')" width="160" />
+        <el-table-column :label="t('common.actions')" width="120">
+          <template #default="scope">
+            <el-button size="small" @click="go(scope.row.target_path)">{{ t('dashboard.openItem') }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </main>
 </template>

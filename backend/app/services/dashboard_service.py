@@ -7,7 +7,7 @@ from backend.app.models.operation_module import OperationModuleProposal
 from backend.app.models.scheduled_job import ScheduledJob
 from backend.app.models.task import AiAnalysisResult, Task
 from backend.app.operation_modules.registry import registry
-from backend.app.schemas.dashboard import DashboardSummaryRead
+from backend.app.schemas.dashboard import DashboardActionItemRead, DashboardSummaryRead
 
 
 class DashboardService:
@@ -39,7 +39,21 @@ class DashboardService:
             ai_analyses=self._count(AiAnalysisResult),
             pending_ai_proposals=self._count_where(AiProposal, AiProposal.status == "draft"),
             pending_module_proposals=self._count_where(OperationModuleProposal, OperationModuleProposal.status.in_(["draft", "reviewing"])),
+            action_items=self._action_items(),
         )
+
+    def _action_items(self) -> list[DashboardActionItemRead]:
+        """返回首页最需要处理的事项。"""
+        items: list[DashboardActionItemRead] = []
+        for task in self.db.scalars(select(Task).where(Task.status == "failed").order_by(Task.id.desc()).limit(5)):
+            items.append(DashboardActionItemRead(kind="failed_task", title=task.name, status=task.status, target_path=f"/tasks?task_id={task.id}"))
+        for plan in self.db.scalars(select(ApplyPlan).where(ApplyPlan.status == "pending_review").order_by(ApplyPlan.id.desc()).limit(5)):
+            items.append(DashboardActionItemRead(kind="pending_apply_plan", title=f"Apply Plan #{plan.id}", status=plan.status, target_path=f"/gitops-diff?plan_id={plan.id}"))
+        for proposal in self.db.scalars(select(AiProposal).where(AiProposal.status == "draft").order_by(AiProposal.id.desc()).limit(5)):
+            items.append(DashboardActionItemRead(kind="pending_ai_proposal", title=proposal.title, status=proposal.status, target_path=f"/ai-proposals?id={proposal.id}"))
+        for proposal in self.db.scalars(select(OperationModuleProposal).where(OperationModuleProposal.status.in_(["draft", "reviewing"])).order_by(OperationModuleProposal.id.desc()).limit(5)):
+            items.append(DashboardActionItemRead(kind="pending_module_proposal", title=proposal.title, status=proposal.status, target_path=f"/operation-module-proposals?id={proposal.id}"))
+        return items[:10]
 
     def _count(self, model: type) -> int:
         """统计表记录数。"""

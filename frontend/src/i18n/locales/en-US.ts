@@ -139,6 +139,8 @@ export default {
     aiAnalyses: 'AI Analyses',
     pendingAiProposals: 'Pending AI Proposals',
     pendingModuleProposals: 'Pending Module Proposals',
+    actionItems: 'Action Items',
+    openItem: 'Open',
   },
   pages: {
     hosts: {
@@ -225,6 +227,8 @@ export default {
       planExecuted: 'Apply plan executed',
       applyRuns: 'Apply Runs',
       proposalGenerated: 'AI proposal generated',
+      executeConfirm: 'You are about to execute an Apply Plan. Confirm impact scope, policy status, and rollback notes first.',
+      manualActualNotice: 'Actual Resource is manually entered demo state for now; real scanning is deferred to issue #2.',
     },
     aiProposals: {
       title: 'AI Proposal Review',

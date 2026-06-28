@@ -1,5 +1,12 @@
 import { getJson } from './client'
 
+export interface DashboardActionItem {
+  kind: string
+  title: string
+  status: string
+  target_path: string
+}
+
 export interface DashboardSummary {
   hosts: number
   host_groups: number
@@ -16,6 +23,7 @@ export interface DashboardSummary {
   ai_analyses: number
   pending_ai_proposals: number
   pending_module_proposals: number
+  action_items: DashboardActionItem[]
 }
 
 export function getDashboardSummary() {

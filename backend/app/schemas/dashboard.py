@@ -1,4 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+class DashboardActionItemRead(BaseModel):
+    """Dashboard 待处理事项。"""
+
+    kind: str
+    title: str
+    status: str
+    target_path: str
 
 
 class DashboardSummaryRead(BaseModel):
@@ -19,3 +28,4 @@ class DashboardSummaryRead(BaseModel):
     ai_analyses: int
     pending_ai_proposals: int
     pending_module_proposals: int
+    action_items: list[DashboardActionItemRead] = Field(default_factory=list)

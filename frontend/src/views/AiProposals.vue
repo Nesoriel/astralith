@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import {
@@ -14,12 +15,16 @@ import {
 import { generateOperationModuleProposalFromAi as generateModuleProposal } from '../api/operationModuleProposals'
 
 const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 const proposals = ref<AiProposal[]>([])
 const statusFilter = ref('all')
 const loading = ref(false)
 const reviewComment = ref('')
 
+const selectedProposalId = computed(() => Number(route.query.id) || null)
 const filteredProposals = computed(() => statusFilter.value === 'all' ? proposals.value : proposals.value.filter((item) => item.status === statusFilter.value))
+const selectedProposal = computed(() => proposals.value.find((item) => item.id === selectedProposalId.value) ?? null)
 const form = ref<AiProposalPayload>({
   proposal_type: 'runbook',
   title: t('defaults.aiProposalTitle'),
@@ -65,8 +70,13 @@ async function rejectProposal(proposal: AiProposal): Promise<void> {
 }
 
 async function generateModule(proposal: AiProposal): Promise<void> {
-  await generateModuleProposal(proposal.id)
+  const moduleProposal = await generateModuleProposal(proposal.id)
   ElMessage.success(t('pages.aiProposals.moduleProposalGenerated'))
+  await router.push(`/operation-module-proposals?id=${moduleProposal.id}`)
+}
+
+async function openSource(proposal: AiProposal): Promise<void> {
+  if (proposal.source_type === 'task' && proposal.source_id) await router.push(`/tasks?task_id=${proposal.source_id}`)
 }
 
 function formatJson(value: Record<string, unknown>): string {
@@ -121,6 +131,12 @@ onMounted(loadData)
           <template #default="scope"><el-tag :type="statusTagType(scope.row.status)">{{ scope.row.status }}</el-tag></template>
         </el-table-column>
         <el-table-column prop="risk_level" :label="t('fields.riskLevel')" width="120" />
+        <el-table-column :label="t('fields.source')" width="160">
+          <template #default="scope">
+            <el-button v-if="scope.row.source_type" link type="primary" @click="openSource(scope.row)">{{ scope.row.source_type }} #{{ scope.row.source_id }}</el-button>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
         <el-table-column :label="t('fields.content')" min-width="300">
           <template #default="scope"><pre class="max-h-40 overflow-auto rounded bg-slate-100 p-2 text-xs">{{ formatJson(scope.row.content) }}</pre></template>
         </el-table-column>
@@ -133,5 +149,17 @@ onMounted(loadData)
         </el-table-column>
       </el-table>
     </el-card>
+
+    <el-drawer :model-value="selectedProposal !== null" :title="selectedProposal?.title" size="50%" @close="router.push('/ai-proposals')">
+      <div v-if="selectedProposal" class="space-y-3">
+        <el-descriptions border :column="1">
+          <el-descriptions-item :label="t('fields.status')">{{ selectedProposal.status }}</el-descriptions-item>
+          <el-descriptions-item :label="t('fields.riskLevel')">{{ selectedProposal.risk_level }}</el-descriptions-item>
+          <el-descriptions-item :label="t('fields.source')">{{ selectedProposal.source_type ?? '-' }} #{{ selectedProposal.source_id ?? '-' }}</el-descriptions-item>
+          <el-descriptions-item :label="t('fields.summary')">{{ selectedProposal.summary }}</el-descriptions-item>
+        </el-descriptions>
+        <pre class="max-h-96 overflow-auto rounded bg-slate-100 p-3 text-xs">{{ formatJson(selectedProposal.content) }}</pre>
+      </div>
+    </el-drawer>
   </main>
 </template>

@@ -139,6 +139,8 @@ export default {
     aiAnalyses: 'AI 分析',
     pendingAiProposals: '待审 AI 提案',
     pendingModuleProposals: '待审模块提案',
+    actionItems: '待处理事项',
+    openItem: '查看',
   },
   pages: {
     hosts: {
@@ -225,6 +227,8 @@ export default {
       planExecuted: 'Apply Plan 已执行',
       applyRuns: 'Apply Runs',
       proposalGenerated: 'AI 提案已生成',
+      executeConfirm: '即将执行 Apply Plan，请确认已核对影响范围、策略状态与回滚方案。',
+      manualActualNotice: '当前 Actual Resource 为手动录入演示数据；真实扫描将在 issue #2 后续接入。',
     },
     aiProposals: {
       title: 'AI 提案评审',

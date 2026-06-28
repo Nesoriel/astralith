@@ -130,6 +130,9 @@ def test_dashboard_summary_service_counts_platform_metrics(db_session: Session) 
     assert summary.ai_analyses == 1
     assert summary.pending_ai_proposals == 1
     assert summary.pending_module_proposals == 1
+    assert summary.action_items[0].kind == "failed_task"
+    assert summary.action_items[0].target_path == "/tasks?task_id=2"
+    assert any(item.kind == "pending_apply_plan" for item in summary.action_items)
 
 
 def test_dashboard_summary_api_returns_metrics(client: TestClient) -> None:
@@ -153,3 +156,5 @@ def test_dashboard_summary_api_returns_metrics(client: TestClient) -> None:
     assert body["pending_apply_plans"] == 1
     assert body["pending_ai_proposals"] == 1
     assert body["pending_module_proposals"] == 1
+    assert body["action_items"][0]["kind"] == "failed_task"
+    assert body["action_items"][0]["target_path"] == "/tasks?task_id=2"

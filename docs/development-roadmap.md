@@ -200,6 +200,28 @@ Goal: turn the v1.0.0 backend capabilities into clear, workflow-oriented fronten
 - Show source, risk, content preview, validation output, test plan, rollback notes, review comments, and export actions.
 - Allow approved AI Proposals to generate Operation Module Proposals from the frontend.
 
+### v1.0.6 — Workbench Flow and Error Handling Fixes
+
+- Operation Module quick execution should immediately open or deep-link to the created task feedback loop.
+- Recent module tasks should provide a visible log/incident action.
+- Task Incident Flow should show Proposal cards with review navigation instead of raw JSON only.
+- JSON textarea fallbacks must use safe parse handling with user-visible errors.
+- Shared status/risk tag utilities should keep colors consistent across pages.
+
+### v1.0.7 — Unified GitOps Workbench
+
+- Combine repository sync, Desired Resources, Actual Resources, Diff, Apply Plans, Policy Results, and Apply Runs into one user flow.
+- Keep the current repository as the shared workbench context.
+- Make manual Actual Resource entry clearly marked as demo/manual state until issue #2 introduces real scanning.
+- Add confirmation before executing Apply Plans.
+
+### v1.0.8 — Dashboard Action Items and Deep Links
+
+- Dashboard should show pending action lists, not only counters.
+- Support useful query-parameter deep links such as `/tasks?task_id=123`, `/ai-proposals?id=5`, and `/operation-module-proposals?id=8`.
+- Add focused workflow tests for the new workbench links and guards.
+- Keep i18n keys synchronized and avoid new hardcoded user-facing strings.
+
 ## Quality Rules
 
 - Code comments and docstrings are Chinese.

@@ -329,7 +329,15 @@ v1.0.4 GitOps Workbench
   -> sync, desired, actual, diff, plan, policy, approve, execute, apply run
 v1.0.5 Proposal Review Workbench
   -> AI and module proposals with filters, review state, validation, export
+v1.0.6 Workbench Flow and Error Handling Fixes
+  -> quick-execution feedback, proposal navigation, safe JSON fallback, shared tags
+v1.0.7 Unified GitOps Workbench
+  -> repository, sync, desired, actual, diff, plan, policy, run in one context
+v1.0.8 Dashboard Action Items and Deep Links
+  -> pending work lists, query deep links, workflow tests, i18n cleanup
 ```
+
+Issue #3 should remain open until v1.0.8 quality work is complete. v1.0.5 is enough for graduation demonstration, but the comment feedback makes the closure bar stricter: the product must be smooth, navigable, and recover gracefully from user errors.
 
 Principles:
 
